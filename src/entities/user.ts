@@ -1,35 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, ManyToMany, JoinTable, OneToMany } from 'typeorm';
-import { Seller } from './seller';
-import { Address } from './addresses';
-import { Sale } from './sale';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Movement } from './movement';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Seller, (seller) => seller.user)
-  seller: Seller;
-
-  @ManyToMany(() => Address, (address) => address.users)
-  @JoinTable({
-    name: 'user_addresses',
-    joinColumns: [{ name: 'user_id' }],
-    inverseJoinColumns: [{ name: 'address_id' }]
-  })
-  addresses: Address[];
-
-  @OneToMany(() => Sale, (sale) => sale.user)
-  sales: Sale[];
-
-  @Column({ type: 'datetime', nullable: false })
-  createdAt: Date;
-
-  @Column({ type: 'datetime', nullable: false })
-  updatedAt: Date;
-
-  @Column({ type: 'datetime', nullable: false })
-  birthdate: Date;
+  @OneToOne(() => Movement, (movement) => movement.user)
+  movement: Movement;
 
   @Column({ type: 'varchar', nullable: false })
   email: string;

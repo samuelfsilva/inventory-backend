@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Categories } from './categories';
 import { Group } from './group';
-import { Store } from './store';
-import { Complement } from './complement';
-import { SaleItem } from './sale_items';
+import { MovementItem } from './movement_item';
+import { Batch } from './batch';
+import { Stock } from './stock';
 
 @Entity()
 export class Product {
@@ -14,36 +14,24 @@ export class Product {
   @JoinColumn({ name: 'category_id' })
   category: Categories;
 
-  @ManyToOne(() => Group, (group) => group.products)
+  @ManyToOne(() => Group, (group) => group.product)
   @JoinColumn({ name: 'group_id' })
   group: Group;
 
-  @ManyToOne(() => Store, (store) => store.products)
-  @JoinColumn({ name: 'store_id' })
-  store: Store;
+  @OneToMany(() => Stock, (stock) => stock.product)
+  stock: Stock[];
 
-  @ManyToMany(() => Complement, (complement) => complement.products)
-  @JoinTable({
-    name: 'product_complements',
-    joinColumns: [{ name: 'product_id' }],
-    inverseJoinColumns: [{ name: 'complement_id' }]
-  })
-  complements: Complement[];
+  @OneToMany(() => Batch, (batch) => batch.product)
+  batch: Batch[];
 
-  @OneToMany(() => SaleItem, (saleItem) => saleItem.product)
-  saleItems: SaleItem[];
+  @OneToMany(() => MovementItem, (movementItem) => movementItem.product)
+  movementItems: MovementItem[];
+
+  @Column({ type: 'varchar', nullable: false })
+  name: string;
 
   @Column({ type: 'varchar', nullable: false })
   description: string;
-
-  @Column({ type: 'varchar', nullable: false })
-  details: string;
-
-  @Column({ type: 'numeric', nullable: false })
-  price: number;
-
-  @Column({ type: 'numeric', nullable: true })
-  previousPrice: number | null;
 
   @Column({ type: 'boolean', nullable: false })
   isActive: boolean;

@@ -1,17 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Sale } from './sale';
+import { Movement } from './movement';
 import { Product } from './product';
 
 @Entity()
-export class SaleItem {
+export class MovementItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Sale, (sale) => sale.items)
-  @JoinColumn({ name: 'sale_id' })
-  sale: Sale;
+  @ManyToOne(() => Movement, (movement) => movement.items)
+  @JoinColumn({ name: 'movement_id' })
+  movement: Movement;
 
-  @ManyToOne(() => Product, (product) => product.saleItems)
+  @ManyToOne(() => Product, (product) => product.movementItems)
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

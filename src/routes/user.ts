@@ -9,7 +9,6 @@ const userSchema = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
-  birthdate: Joi.date().required(),
   password: Joi.string().required()
 });
 
@@ -17,7 +16,7 @@ router.post('/', async (req: Request, res: Response) => {
   const { error } = userSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { firstName, lastName, email, birthdate, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
   
   const userExists = await AppDataSource
     .getRepository(User)
@@ -31,10 +30,7 @@ router.post('/', async (req: Request, res: Response) => {
   user.firstName = firstName;
   user.lastName = lastName;
   user.email = email;
-  user.birthdate = birthdate;
   user.password = password;
-  user.createdAt = new Date();
-  user.updatedAt = new Date();
 
   await AppDataSource.manager.save(user);
 
@@ -54,7 +50,7 @@ router.get('/active', async (req: Request, res: Response) => {
   const users = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
-    .where("user.isActive = :isActive", { isActive: 1 })
+    .where("user.isActive = :isActive", { isActive: true })
     .getMany();
   
   res.send(users);
@@ -98,9 +94,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        birthdate: req.body.birthdate,
-        password: req.body.password,
-        updatedAt: new Date()
+        password: req.body.password
       })
 
   res.status(201).json(user);

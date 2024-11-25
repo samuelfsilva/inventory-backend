@@ -1,26 +1,20 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './user';
-import { SaleItem } from './sale_items';
+import { MovementItem } from './movement_item';
 
 @Entity()
-export class Sale {
+export class Movement {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => User, (user) => user.sales)
   user: User;
 
-  @OneToMany(() => SaleItem, (saleItem) => saleItem.sale)
-  items: SaleItem[];
+  @OneToMany(() => MovementItem, (movementItem) => movementItem.movement)
+  items: MovementItem[];
 
   @Column({ type: 'datetime', nullable: false })
-  orderDate: Date;
-
-  @Column({ type: 'datetime', nullable: true })
-  expectedDeliveryDate: Date | null;
-
-  @Column({ type: 'datetime', nullable: true })
-  actualDeliveryDate: Date | null;
+  movementDate: Date;
 
   @Column({ type: 'boolean', nullable: false })
   isActive: boolean;

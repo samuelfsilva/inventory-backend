@@ -6,10 +6,8 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const productSchema = Joi.object({
+  name: Joi.string().optional(),
   description: Joi.string().optional(),
-  details: Joi.string().optional(),
-  price: Joi.number().required(),
-  previousPrice: Joi.number().optional(),
   isActive: Joi.boolean().optional()
 });
 
@@ -17,13 +15,11 @@ router.post('/', async (req: Request, res: Response) => {
   const { error } = productSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { description, details, price, previousPrice, isActive } = req.body;
+  const { name, description, isActive } = req.body;
 
   const product = new Product();
+  product.name = name;
   product.description = description;
-  product.details = details;
-  product.price = price;
-  product.previousPrice = previousPrice;
   product.isActive = isActive;
 
   await AppDataSource.manager.save(product);
@@ -60,17 +56,6 @@ router.get('/:id', async (req: Request, res: Response) => {
   res.status(201).json(product);
 });
 
-router.get('/:id/complements', async (req: Request, res: Response) => {
-  const product = await AppDataSource
-    .getRepository(Product)
-    .createQueryBuilder("product")
-    .where("product.id = :id", { id: req.params.id })
-    .leftJoinAndSelect("product.complements", "complements")
-    .getMany();
-
-  res.status(201).json(product);
-});
-
 router.put('/:id', async (req: Request, res: Response) => {
   const product = await AppDataSource
     .getRepository(Product)
@@ -80,16 +65,14 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   if (!product) return res.status(400).send('Product not found');
 
-  const { description, details, price, previousPrice, isActive } = req.body;
+  const { name, description, isActive } = req.body;
 
   await AppDataSource.manager.update(
     Product,
     { id: product.id },
     {
+      name,
       description,
-      details,
-      price,
-      previousPrice,
       isActive
     }
   );
