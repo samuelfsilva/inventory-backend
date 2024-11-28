@@ -9,6 +9,6 @@ export class Stock {
   @ManyToOne(() => Product, (product) => product.stock)
   product: Product;
   
-  @Column({ type: 'boolean', nullable: false })
+  @Column({ type: 'numeric', nullable: false })
   quantity: number;
 }

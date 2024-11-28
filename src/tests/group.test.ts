@@ -1,8 +1,13 @@
+import { afterEach } from 'vitest';
 import { describe, it, expect } from 'vitest';
 import { Group } from '../entities/group';
 import { AppDataSource } from '../database/data-source';
 
 describe('Group Entity', () => {
+  afterEach(async () => {
+    await AppDataSource.getRepository(Group).clear();
+  });
+
   it('should create a new group', async () => {
     const group = new Group();
     group.description = 'Test Group';
@@ -23,7 +28,7 @@ describe('Group Entity', () => {
     .update(
       Group, 
       { id: saved.id }, 
-      { description: 'Test Update Group' })
+      { description: 'Test Update Group' });
 
     const select = await AppDataSource
     .getRepository(Group)
@@ -55,3 +60,4 @@ describe('Group Entity', () => {
     expect(salect).toBeNull();
   });
 });
+

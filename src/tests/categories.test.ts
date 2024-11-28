@@ -1,8 +1,13 @@
+import { afterEach } from 'vitest';
 import { describe, it, expect } from 'vitest';
 import { Categories } from '../entities/categories';
 import { AppDataSource } from '../database/data-source';
 
 describe('Category Entity', () => {
+  afterEach(async () => {
+    await AppDataSource.getRepository(Categories).clear();
+  });
+
   it('should create a new category', async () => {
     const category = new Categories();
     category.description = 'Test Category';
@@ -44,7 +49,7 @@ describe('Category Entity', () => {
     .manager
     .delete(
       Categories, 
-      { id: savedId })
+      { id: savedId });
 
     const salect = await AppDataSource
     .getRepository(Categories)
@@ -55,3 +60,5 @@ describe('Category Entity', () => {
     expect(salect).toBeNull();
   });
 });
+
+

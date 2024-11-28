@@ -1,12 +1,18 @@
 {
-  "name": "delivery-backend",
+  "name": "inventory-backend",
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
     "build": "npx tsc",
     "start": "set NODE_ENV=HOMOLOGATION && node dist/src/index.js",
     "dev": "set NODE_ENV=HOMOLOGATION && nodemon src/index.ts",
-    "test": "set NODE_ENV=TEST && vitest"
+    "test": "set NODE_ENV=TEST && vitest",
+    "homologation:migrate": "set NODE_ENV=HOMOLOGATION && npx typeorm migration:run --dataSource ./src/database/data-source.ts",
+    "homologation:migrate:revert": "set NODE_ENV=HOMOLOGATION && npx typeorm migration:revert",
+    "homologation:migrate:create": "set NODE_ENV=HOMOLOGATION && npx typeorm migration:create -n",
+    "test:migrate": "set NODE_ENV=TEST && npx typeorm migration:run --dataSource ./src/database/data-source.ts",
+    "test:migrate:revert": "set NODE_ENV=TEST && npx typeorm migration:revert",
+    "test:migrate:create": "set NODE_ENV=TEST && npx typeorm migration:create -n"
   },
   "keywords": [],
   "author": "",

@@ -7,7 +7,7 @@ export class Movement {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (user) => user.sales)
+  @ManyToOne(() => User, (user) => user.movement)
   user: User;
 
   @OneToMany(() => MovementItem, (movementItem) => movementItem.movement)
