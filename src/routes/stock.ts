@@ -17,20 +17,21 @@ router.post('/', async (req: Request, res: Response) => {
   const { error } = stockSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { productId, quantity, stockName } = req.body;
+  const { product: { id: productId }, quantity } = req.body;
 
-  const stockExists = await AppDataSource
-    .getRepository(Stock)
-    .createQueryBuilder("stock")
-    .where("stock.stockName = :stockName", { stockName: stockName })
-    .getOne();
+  if (!productId || typeof productId !== 'string' || productId.trim() === '') {
+    return res.status(400).send('Product id must be a non-empty string');
+  }
 
-  if (stockExists) return res.status(400).send('Stock already registered');
+  if (isNaN(quantity) || quantity <= 0) {
+    return res.status(400).send('Quantity must be a positive number');
+  }
 
   const stock = new Stock();
   stock.quantity = quantity;
 
-  const product = await AppDataSource.getRepository(Product).findOne(productId);
+  const product = await AppDataSource.getRepository(Product).findOneBy({ id: productId });
+  
   if (!product) return res.status(400).send('Product not found');
 
   stock.product = product;
@@ -70,15 +71,26 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { producto: { id: productId }, quantity } = req.body;
+
+  if (!productId || typeof productId !== 'string' || productId.trim() === '') {
+    return res.status(400).send('Product id must be a non-empty string');
+  }
+
+  if (isNaN(quantity) || quantity <= 0) {
+    return res.status(400).send('Quantity must be a positive number');
+  }
   const stock = await AppDataSource
     .getRepository(Stock)
     .createQueryBuilder("stock")
-    .where("stock.id = :id", { id: req.params.id })
+    .where("stock.id = :id", { id: id })
     .getOne();
   
   if (!stock) return res.status(400).send('Stock not found');
 
-  const product = await AppDataSource.getRepository(Product).findOne(req.body.productId);
+  const product = await AppDataSource.getRepository(Product).findOneBy({ id: productId });
+  
   if (!product) return res.status(400).send('Product not found');
   
   await AppDataSource
@@ -87,7 +99,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       Stock, 
       { id: stock.id }, 
       { 
-        quantity: req.body.quantity,
+        quantity,
         product
       })
 

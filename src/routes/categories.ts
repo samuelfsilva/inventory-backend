@@ -15,8 +15,16 @@ router.post('/', async (req: Request, res: Response) => {
 
   const { description } = req.body;
 
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (description.length > 255) {
+    return res.status(400).send('Description too long, must be less than 255 characters');
+  }
+
   const categories = new Categories();
-  categories.description = description;
+  categories.description = description.trim();
 
   await AppDataSource.manager.save(categories);
 
@@ -64,11 +72,19 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   const { description } = req.body;
 
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (description.length > 255) {
+    return res.status(400).send('Description too long, must be less than 255 characters');
+  }
+
   await AppDataSource.manager.update(
     Categories,
     { id: categories.id },
     {
-      description
+      description: description.trim()
     }
   );
 

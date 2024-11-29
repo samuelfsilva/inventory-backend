@@ -17,9 +17,21 @@ router.post('/', async (req: Request, res: Response) => {
 
   const { name, description, isActive } = req.body;
 
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return res.status(400).send('Name must be a non-empty string');
+  }
+
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (typeof isActive !== 'boolean') {
+    return res.status(400).send('isActive must be a boolean');
+  }
+
   const product = new Product();
-  product.name = name;
-  product.description = description;
+  product.name = name.trim();
+  product.description = description.trim();
   product.isActive = isActive;
 
   await AppDataSource.manager.save(product);
@@ -67,12 +79,24 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   const { name, description, isActive } = req.body;
 
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return res.status(400).send('Name must be a non-empty string');
+  }
+
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (typeof isActive !== 'boolean') {
+    return res.status(400).send('isActive must be a boolean');
+  }
+
   await AppDataSource.manager.update(
     Product,
     { id: product.id },
     {
-      name,
-      description,
+      name: name.trim(),
+      description: description.trim(),
       isActive
     }
   );

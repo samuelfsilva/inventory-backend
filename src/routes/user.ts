@@ -9,7 +9,7 @@ const userSchema = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
-  password: Joi.string().required()
+  password: Joi.string().min(8).required()
 });
 
 router.post('/', async (req: Request, res: Response) => {
@@ -17,6 +17,26 @@ router.post('/', async (req: Request, res: Response) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   const { firstName, lastName, email, password } = req.body;
+  
+  if (!firstName || typeof firstName !== 'string' || firstName.trim() === '') {
+    return res.status(400).send('First name must be a non-empty string');
+  }
+
+  if (!lastName || typeof lastName !== 'string' || lastName.trim() === '') {
+    return res.status(400).send('Last name must be a non-empty string');
+  }
+
+  if (!email || typeof email !== 'string' || email.trim() === '') {
+    return res.status(400).send('Email must be a non-empty string');
+  }
+
+  if (!password || typeof password !== 'string' || password.trim() === '') {
+    return res.status(400).send('Password must be a non-empty string');
+  }
+
+  if (/\s/.test(password)) {
+    return res.status(400).send('Password must not contain spaces');
+  }
   
   const userExists = await AppDataSource
     .getRepository(User)
@@ -27,9 +47,9 @@ router.post('/', async (req: Request, res: Response) => {
   if (userExists) return res.status(400).send('Email already registered');
 
   const user = new User();
-  user.firstName = firstName;
-  user.lastName = lastName;
-  user.email = email;
+  user.firstName = firstName.trim();
+  user.lastName = lastName.trim();
+  user.email = email.trim();
   user.password = password;
 
   await AppDataSource.manager.save(user);
@@ -77,6 +97,8 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  const { firstName, lastName, email, password } = req.body;
+
   const user = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
@@ -84,6 +106,26 @@ router.put('/:id', async (req: Request, res: Response) => {
     .getOne();
   
   if (!user) return res.status(400).send('User not found');
+
+  if (!firstName || typeof firstName !== 'string' || firstName.trim() === '') {
+    return res.status(400).send('First name must be a non-empty string');
+  }
+
+  if (!lastName || typeof lastName !== 'string' || lastName.trim() === '') {
+    return res.status(400).send('Last name must be a non-empty string');
+  }
+
+  if (!email || typeof email !== 'string' || email.trim() === '') {
+    return res.status(400).send('Email must be a non-empty string');
+  }
+
+  if (!password || typeof password !== 'string' || password.trim() === '') {
+    return res.status(400).send('Password must be a non-empty string');
+  }
+
+  if (/\s/.test(password)) {
+    return res.status(400).send('Password must not contain spaces');
+  }
   
   await AppDataSource
     .manager
@@ -91,10 +133,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       User, 
       { id: user.id }, 
       { 
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        password: password
       })
 
   res.status(201).json(user);

@@ -6,7 +6,7 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const groupSchema = Joi.object({
-  description: Joi.string().optional()
+  description: Joi.string().required()
 });
 
 router.post('/', async (req: Request, res: Response) => {
@@ -15,8 +15,16 @@ router.post('/', async (req: Request, res: Response) => {
 
   const { description } = req.body;
 
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (description.length > 255) {
+    return res.status(400).send('Description too long, must be less than 255 characters');
+  }
+
   const group = new Group();
-  group.description = description;
+  group.description = description.trim();
 
   await AppDataSource.manager.save(group);
 
@@ -64,11 +72,19 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   const { description } = req.body;
 
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (description.length > 255) {
+    return res.status(400).send('Description too long, must be less than 255 characters');
+  }
+
   await AppDataSource.manager.update(
     Group,
     { id: group.id },
     {
-      description
+      description: description.trim(),
     }
   );
 

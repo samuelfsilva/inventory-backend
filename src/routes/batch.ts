@@ -16,8 +16,20 @@ router.post('/', async (req: Request, res: Response) => {
 
   const { description, expirationDate } = req.body;
 
+  if (!description || !expirationDate) {
+    return res.status(400).send('Description and expiration date are required');
+  }
+
+  if (typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (!(expirationDate instanceof Date) || isNaN(expirationDate.getTime())) {
+    return res.status(400).send('Expiration date must be a valid date');
+  }
+
   const batch = new Batch();
-  batch.description = description;
+  batch.description = description.trim();
   batch.expirationDate = expirationDate;
 
   await AppDataSource.manager.save(batch);
@@ -55,11 +67,23 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   const { description, expirationDate } = req.body;
 
+  if (!description || !expirationDate) {
+    return res.status(400).send('Description and expiration date are required');
+  }
+
+  if (typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (!(expirationDate instanceof Date) || isNaN(expirationDate.getTime())) {
+    return res.status(400).send('Expiration date must be a valid date');
+  }
+
   await AppDataSource.manager.update(
     Batch,
     { id: batchs.id },
     {
-      description,
+      description: description.trim(),
       expirationDate
     }
   );

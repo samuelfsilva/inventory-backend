@@ -18,12 +18,16 @@ router.post('/', async (req: Request, res: Response) => {
   const { error } = movementSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { isActive, movementDate, user } = req.body;
+  const { isActive, movementDate, user: { id: userId } } = req.body;
+
+  if (typeof isActive !== 'boolean') return res.status(400).send('isActive must be a boolean');
+  if (isNaN(movementDate.getTime())) return res.status(400).send('movementDate must be a valid Date');
+  if (typeof userId !== 'string' || userId.trim() === '') return res.status(400).send('userId must be a non-empty string');
 
   const userExists = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
-    .where("user.id = :id", { id: user.id })
+    .where("user.id = :id", { id: userId })
     .getOne();
 
   if (!userExists) return res.status(400).send('User not found');
@@ -140,23 +144,51 @@ router.get('/movementDate/:movementDate', async (req: Request, res: Response) =>
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const { isActive, movementDate, user: { id: userId } } = req.body;
+
   const movement = await AppDataSource
     .getRepository(Movement)
-    .createQueryBuilder("movement")
-    .where("movement.id = :id", { id: req.params.id })
+    .createQueryBuilder('movement')
+    .where('movement.id = :movementId', { movementId: id })
     .getOne();
-  
-  if (!movement) return res.status(400).send('Movement not found');
-  
+
+  const user = await AppDataSource
+    .getRepository(User)
+    .createQueryBuilder('user')
+    .where('user.id = :userId', { userId: userId })
+    .getOne();
+
+    
+  if (!movement) {
+    return res.status(400).send('Movement not found');
+  }
+
+  if (!user) {
+    return res.status(400).send('User not found');
+  }
+
+  if (typeof isActive !== 'boolean') {
+    return res.status(400).send('isActive must be a boolean');
+  }
+
+  if (isNaN(Date.parse(movementDate))) {
+    return res.status(400).send('Movement date must be a valid Date');
+  }
+
+  if (typeof userId !== 'string' || userId.trim() === '') {
+    return res.status(400).send('User Id must be a non-empty string');
+  }
+
   await AppDataSource
     .manager
     .update(
       Movement, 
       { id: movement.id }, 
       { 
-        isActive: req.body.isActive,
-        movementDate: req.body.movementDate,
-        user: req.body.user
+        isActive: isActive,
+        movementDate: movementDate,
+        user
       })
 
   res.status(201).json(movement);

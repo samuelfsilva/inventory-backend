@@ -16,9 +16,25 @@ router.post('/', async (req: Request, res: Response) => {
 
   const { name, description } = req.body;
 
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return res.status(400).send('Name must be a non-empty string');
+  }
+
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (name.length > 255) {
+    return res.status(400).send('Name too long, must be less than 255 characters');
+  }
+
+  if (description.length > 255) {
+    return res.status(400).send('Description too long, must be less than 255 characters');
+  }
+
   const deposit = new Deposit();
-  deposit.name = name;
-  deposit.description = description;
+  deposit.name = name.trim();
+  deposit.description = description.trim();
   deposit.isActive = true;
 
   await AppDataSource.manager.save(deposit);
@@ -56,12 +72,28 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   const { name, description } = req.body;
 
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return res.status(400).send('Name must be a non-empty string');
+  }
+
+  if (!description || typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).send('Description must be a non-empty string');
+  }
+
+  if (name.length > 255) {
+    return res.status(400).send('Name too long, must be less than 255 characters');
+  }
+
+  if (description.length > 255) {
+    return res.status(400).send('Description too long, must be less than 255 characters');
+  }
+
   await AppDataSource.manager.update(
     Deposit,
     { id: deposit.id },
     {
-      name,
-      description
+      name: name.trim(),
+      description: description.trim()
     }
   );
 
