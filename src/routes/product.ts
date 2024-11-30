@@ -12,6 +12,9 @@ const productSchema = Joi.object({
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Product']
+  // #swagger.description = 'Create a new product'
+
   const { error } = productSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -40,6 +43,9 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Product']
+  // #swagger.description = 'Get all products'
+
   const products = await AppDataSource
     .getRepository(Product)
     .createQueryBuilder("product")
@@ -49,6 +55,9 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/active', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Product']
+  // #swagger.description = 'Get active products'
+
   const products = await AppDataSource
     .getRepository(Product)
     .createQueryBuilder("product")
@@ -59,6 +68,9 @@ router.get('/active', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Product']
+  // #swagger.description = 'Get a product by id'
+
   const product = await AppDataSource
     .getRepository(Product)
     .createQueryBuilder("product")
@@ -69,6 +81,9 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Product']
+  // #swagger.description = 'Update a product by id'
+
   const product = await AppDataSource
     .getRepository(Product)
     .createQueryBuilder("product")
@@ -105,6 +120,9 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Product']
+  // #swagger.description = 'Delete a product by id'
+
   const product = await AppDataSource
     .getRepository(Product)
     .createQueryBuilder("product")

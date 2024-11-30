@@ -11,6 +11,10 @@ const depositSchema = Joi.object({
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Deposit']
+    #swagger.description = 'Create a new deposit'
+  */
   const { error } = depositSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -43,6 +47,10 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Deposit']
+    #swagger.description = 'Get all deposits'
+  */
   const deposits = await AppDataSource
     .getRepository(Deposit)
     .createQueryBuilder("deposit")
@@ -52,6 +60,10 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Deposit']
+    #swagger.description = 'Get a deposit by ID'
+  */
   const deposit = await AppDataSource
     .getRepository(Deposit)
     .createQueryBuilder("deposit")
@@ -62,6 +74,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Deposit']
+    #swagger.description = 'Update a deposit by ID'
+  */
   const deposit = await AppDataSource
     .getRepository(Deposit)
     .createQueryBuilder("deposit")
@@ -101,6 +117,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Deposit']
+    #swagger.description = 'Delete a deposit by ID'
+  */
   const deposit = await AppDataSource
     .getRepository(Deposit)
     .createQueryBuilder("deposit")

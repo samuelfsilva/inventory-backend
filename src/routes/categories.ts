@@ -10,6 +10,10 @@ const categoriesSchema = Joi.object({
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Create a category'
+  */
   const { error } = categoriesSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -32,6 +36,10 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Get all categories'
+  */
   const categories = await AppDataSource
     .getRepository(Categories)
     .createQueryBuilder("categories")
@@ -41,6 +49,10 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Get a category by id'
+  */
   const categories = await AppDataSource
     .getRepository(Categories)
     .createQueryBuilder("categories")
@@ -51,6 +63,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.get('/:id/products', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Get all products of a category'
+  */
   const categories = await AppDataSource
     .getRepository(Categories)
     .createQueryBuilder("categories")
@@ -62,6 +78,10 @@ router.get('/:id/products', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Update a category'
+  */
   const categories = await AppDataSource
     .getRepository(Categories)
     .createQueryBuilder("categories")
@@ -92,6 +112,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Delete a category'
+  */
   const categories = await AppDataSource
     .getRepository(Categories)
     .createQueryBuilder("categories")

@@ -9,16 +9,16 @@ const router: Router = express.Router();
 const movementSchema = Joi.object({
   isActive: Joi.boolean().required(),
   movementDate: Joi.date().required(),
-  user: Joi.object({
-    id: Joi.string().required()
-  }).required()
+  userId: Joi.string().required()
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Create a new movement'
   const { error } = movementSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { isActive, movementDate, user: { id: userId } } = req.body;
+  const { isActive, movementDate, userId } = req.body;
 
   if (typeof isActive !== 'boolean') return res.status(400).send('isActive must be a boolean');
   if (isNaN(movementDate.getTime())) return res.status(400).send('movementDate must be a valid Date');
@@ -43,6 +43,8 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Get all movements'
   const movements = await AppDataSource
     .getRepository(Movement)
     .createQueryBuilder("movement")
@@ -53,6 +55,8 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/active', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Get all active movements'
   const movements = await AppDataSource
     .getRepository(Movement)
     .createQueryBuilder("movement")
@@ -63,6 +67,8 @@ router.get('/active', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Get a movement by id'
   const movement = await AppDataSource
     .getRepository(Movement)
     .createQueryBuilder("movement")
@@ -73,23 +79,13 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.get('/:id/items', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Get all items of a movement'
   const movement = await AppDataSource
     .getRepository(Movement)
     .createQueryBuilder("movement")
     .where("movement.id = :id", { id: req.params.id })
-    .leftJoinAndSelect("movement.movementItems", "movement_item")
-    .leftJoinAndSelect("movementItems.product", "product")
-    .getOne();
-  
-  res.status(201).json(movement);
-});
-
-router.get('/:id/items', async (req: Request, res: Response) => {
-  const movement = await AppDataSource
-    .getRepository(Movement)
-    .createQueryBuilder("movement")
-    .where("movement.id = :id", { id: req.params.id })
-    .leftJoinAndSelect("movement.items", "movementItem")
+    .leftJoinAndSelect("movement.items", "movement_item")
     .leftJoinAndSelect("movementItems.product", "product")
     .getOne();
   
@@ -97,6 +93,8 @@ router.get('/:id/items', async (req: Request, res: Response) => {
 });
 
 router.get('/movementPeriod/:startDate/:endDate', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Get all movements in a given period'
   const { startDate: startDateString, endDate: endDateString } = req.params;
   let startDate: Date, endDate: Date;
   try {
@@ -124,6 +122,8 @@ router.get('/movementPeriod/:startDate/:endDate', async (req: Request, res: Resp
 });
 
 router.get('/movementDate/:movementDate', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Get all movements in a given date'
   let movementDate: Date;
 
   try {
@@ -144,8 +144,10 @@ router.get('/movementDate/:movementDate', async (req: Request, res: Response) =>
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Update a movement'
   const id = req.params.id;
-  const { isActive, movementDate, user: { id: userId } } = req.body;
+  const { isActive, movementDate, userId } = req.body;
 
   const movement = await AppDataSource
     .getRepository(Movement)
@@ -195,6 +197,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Movement']
+  // #swagger.description = 'Delete a movement'
   const movement = await AppDataSource
     .getRepository(Movement)
     .createQueryBuilder("movement")
@@ -211,7 +215,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
   
   res.send(movement);
 });
-
 export default router;
 
 

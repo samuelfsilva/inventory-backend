@@ -11,6 +11,10 @@ const batchSchema = Joi.object({
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Batch']
+    #swagger.description = 'Create a new batch'
+  */
   const { error } = batchSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -38,6 +42,10 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Batch']
+    #swagger.description = 'Get all batches'
+  */
   const batchs = await AppDataSource
     .getRepository(Batch)
     .createQueryBuilder("batch")
@@ -47,6 +55,10 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Batch']
+    #swagger.description = 'Get a batch by id'
+  */
   const batch = await AppDataSource
     .getRepository(Batch)
     .createQueryBuilder("batch")
@@ -57,6 +69,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Batch']
+    #swagger.description = 'Update a batch by id'
+  */
   const batchs = await AppDataSource
     .getRepository(Batch)
     .createQueryBuilder("batch")
@@ -92,6 +108,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Batch']
+    #swagger.description = 'Delete a batch by id'
+  */
   const batchs = await AppDataSource
     .getRepository(Batch)
     .createQueryBuilder("batch")
