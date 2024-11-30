@@ -13,6 +13,8 @@ const userSchema = Joi.object({
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['User']
+  // #swagger.description = 'Create a new user'
   const { error } = userSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -58,6 +60,8 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['User']
+  // #swagger.description = 'Get all users'
   const users = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
@@ -67,6 +71,8 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/active', async (req: Request, res: Response) => {
+  // #swagger.tags = ['User']
+  // #swagger.description = 'Get all active users'
   const users = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
@@ -77,6 +83,8 @@ router.get('/active', async (req: Request, res: Response) => {
 });
 
 router.get('/firstName/:firstName', async (req: Request, res: Response) => {
+  // #swagger.tags = ['User']
+  // #swagger.description = 'Get all users with first name like :firstName'
   const users = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
@@ -87,6 +95,8 @@ router.get('/firstName/:firstName', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['User']
+  // #swagger.description = 'Get user by id'
   const user = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
@@ -97,6 +107,8 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['User']
+  // #swagger.description = 'Update a user'
   const { firstName, lastName, email, password } = req.body;
 
   const user = await AppDataSource
@@ -143,6 +155,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['User']
+  // #swagger.description = 'Delete user by id'
   const user = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")

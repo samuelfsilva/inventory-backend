@@ -8,16 +8,16 @@ const router: Router = express.Router();
 
 const stockSchema = Joi.object({
   quantity: Joi.number().required(),
-  product: Joi.object({
-    id: Joi.string().required()
-  }).required()
+  productId: Joi.string().required()
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Stock']
+  // #swagger.description = 'Create a new stock'
   const { error } = stockSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { product: { id: productId }, quantity } = req.body;
+  const { productId, quantity } = req.body;
 
   if (!productId || typeof productId !== 'string' || productId.trim() === '') {
     return res.status(400).send('Product id must be a non-empty string');
@@ -42,6 +42,8 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Stock']
+  // #swagger.description = 'Get all stocks'
   const stocks = await AppDataSource
     .getRepository(Stock)
     .createQueryBuilder("stock")
@@ -51,6 +53,8 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/active', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Stock']
+  // #swagger.description = 'Get all active stocks'
   const stocks = await AppDataSource
     .getRepository(Stock)
     .createQueryBuilder("stock")
@@ -61,6 +65,8 @@ router.get('/active', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Stock']
+  // #swagger.description = 'Get a stock by id'
   const stock = await AppDataSource
     .getRepository(Stock)
     .createQueryBuilder("stock")
@@ -71,8 +77,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Stock']
+  // #swagger.description = 'Update a stock'
   const { id } = req.params;
-  const { producto: { id: productId }, quantity } = req.body;
+  const { productId, quantity } = req.body;
 
   if (!productId || typeof productId !== 'string' || productId.trim() === '') {
     return res.status(400).send('Product id must be a non-empty string');
@@ -107,6 +115,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  // #swagger.tags = ['Stock']
+  // #swagger.description = 'Delete a stock'
   const stock = await AppDataSource
     .getRepository(Stock)
     .createQueryBuilder("stock")

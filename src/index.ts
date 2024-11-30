@@ -11,6 +11,9 @@ import routeDeposit from "./routes/deposit";
 import routeMovement from "./routes/movement";
 import routeMovementItem from "./routes/movement_item";
 import routeStock from "./routes/stock";
+import swaggerUi from "swagger-ui-express";
+import bodyParser from "body-parser";
+import swaggerFile from "../swagger.json";
 
 dotenv.config();
 
@@ -20,6 +23,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
+  //  #swagger.ignore = true
   res.send("Express + TypeScript Server");
 });
 
@@ -35,6 +39,9 @@ app.use("/category", routeCategory);
 
 AppDataSource.initialize()
   .then(() => {
+    app.use(bodyParser.json())
+    app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+
     app.listen(port, () => {
       console.log(`[server]: Server is running at http://localhost:${port}`);
     });

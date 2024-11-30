@@ -10,6 +10,10 @@ const groupSchema = Joi.object({
 });
 
 router.post('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Create a new group'
+  */
   const { error } = groupSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -32,6 +36,10 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Get all groups'
+  */
   const groups = await AppDataSource
     .getRepository(Group)
     .createQueryBuilder("group")
@@ -41,6 +49,10 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.get('/:id/products', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Get all products from a group'
+  */
   const group = await AppDataSource
     .getRepository(Group)
     .createQueryBuilder("group")
@@ -52,6 +64,10 @@ router.get('/:id/products', async (req: Request, res: Response) => {
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Get a group'
+  */
   const group = await AppDataSource
     .getRepository(Group)
     .createQueryBuilder("group")
@@ -62,6 +78,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Update a group'
+  */
   const group = await AppDataSource
     .getRepository(Group)
     .createQueryBuilder("group")
@@ -92,6 +112,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Delete a group'
+  */
   const group = await AppDataSource
     .getRepository(Group)
     .createQueryBuilder("group")
@@ -109,4 +133,5 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 export default router;
+
 
