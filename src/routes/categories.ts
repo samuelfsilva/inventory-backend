@@ -62,6 +62,34 @@ router.get('/:id', async (req: Request, res: Response) => {
   res.status(201).json(categories);
 });
 
+router.get('/description/:description', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Get a category by description'
+  */
+  const categories = await AppDataSource
+    .getRepository(Categories)
+    .createQueryBuilder("categories")
+    .where("categories.description = :description", { description: req.params.description })
+    .getOne();
+
+  res.status(201).json(categories);
+});
+
+router.get('/description-like/:description', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Categories']
+    #swagger.description = 'Get all categories with description like :description'
+  */
+  const categories = await AppDataSource
+    .getRepository(Categories)
+    .createQueryBuilder("categories")
+    .where("categories.description LIKE :description", { description: `%${req.params.description}%` })
+    .getMany();
+
+  res.status(201).json(categories);
+});
+
 router.get('/:id/products', async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']

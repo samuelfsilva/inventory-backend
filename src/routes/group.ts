@@ -77,6 +77,34 @@ router.get('/:id', async (req: Request, res: Response) => {
   res.status(201).json(group);
 });
 
+router.get('/description/:description', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Get a group by description'
+  */
+  const group = await AppDataSource
+    .getRepository(Group)
+    .createQueryBuilder("group")
+    .where("group.description = :description", { description: req.params.description })
+    .getOne();
+
+  res.status(201).json(group);
+});
+
+router.get('/description-like/:description', async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Get a group by description like'
+  */
+  const group = await AppDataSource
+    .getRepository(Group)
+    .createQueryBuilder("group")
+    .where("group.description LIKE :description", { description: `%${req.params.description}%` })
+    .getOne();
+
+  res.status(201).json(group);
+});
+
 router.put('/:id', async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Group']

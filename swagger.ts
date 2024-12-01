@@ -1,4 +1,7 @@
 import swaggerAutogen from 'swagger-autogen';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const doc = {
   info: {
@@ -7,14 +10,14 @@ const doc = {
     title: 'Inventary API',
     description: 'Description of the inventary API'
   },
-  host: 'localhost:' + process.env.PORT,
+  host: 'localhost:' + process.env.PORT?.trim(),
   servers: [
     {
-      url: 'http://localhost:' + process.env.PORT,
+      url: 'http://localhost:' + process.env.PORT?.trim(),
       description: 'Local server'
     },
     {
-      url: 'https://localhost:' + process.env.PORT,
+      url: 'https://localhost:' + process.env.PORT?.trim(),
       description: 'Local server with HTTPS'
     }
   ],
@@ -22,43 +25,47 @@ const doc = {
   consumes: ['application/json'],
   produces: ['application/json'],
   tags: [
-    { name: 'User', description: 'User endpoints' },
     { name: 'Batch', description: 'Batch endpoints' },
+    { name: 'Categories', description: 'Categories endpoints' },
     { name: 'Deposit', description: 'Deposit endpoints' },
+    { name: 'Group', description: 'Group endpoints' },
     { name: 'Movement', description: 'Movement endpoints' },
     { name: 'MovementItem', description: 'MovementItem endpoints' },
-    { name: 'Stock', description: 'Stock endpoints' },
     { name: 'Product', description: 'Product endpoints' },
-    { name: 'Group', description: 'Group endpoints' },
-    { name: 'Categories', description: 'Categories endpoints' }
+    { name: 'Stock', description: 'Stock endpoints' },
+    { name: 'User', description: 'User endpoints' }
   ],
   definitions: {
-    User: {
+    Batch: {
       type: 'object',
       properties: {
-        firstName: { type: 'string', example: 'John' },
-        lastName: { type: 'string', example: 'Doe' },
-        email: { type: 'string', example: 'john.doe@example.com' },
-        password: { type: 'string', example: 'password123' }
+        productId: { type: 'string', example: 'any' },
+        quantity: { type: 'number', example: 100 },
+        expirationDate: { type: 'string', example: 'any' }
       },
-      required: ['firstName', 'lastName', 'email', 'password']
+      required: ['productId', 'quantity', 'expirationDate']
     },
-    Product: {
+    Categories: {
       type: 'object',
       properties: {
-        name: { type: 'string', example: 'Product Name' },
-        description: { type: 'string', example: 'Product Description' },
-        isActive: { type: 'boolean', example: true }
+        name: { type: 'string', example: 'any' }
       },
-      required: ['name', 'description', 'isActive']
+      required: ['name']
     },
-    Stock: {
+    Deposit: {
       type: 'object',
       properties: {
         productId: { type: 'string', example: 'any' },
         quantity: { type: 'number', example: 100 }
       },
       required: ['productId', 'quantity']
+    },
+    Group: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'any' }
+      },
+      required: ['name']
     },
     Movement: {
       type: 'object',
@@ -79,16 +86,16 @@ const doc = {
       },
       required: ['details', 'price', 'quantity', 'movementId']
     },
-    Batch: {
+    Product: {
       type: 'object',
       properties: {
-        productId: { type: 'string', example: 'any' },
-        quantity: { type: 'number', example: 100 },
-        expirationDate: { type: 'string', example: 'any' }
+        name: { type: 'string', example: 'Product Name' },
+        description: { type: 'string', example: 'Product Description' },
+        isActive: { type: 'boolean', example: true }
       },
-      required: ['productId', 'quantity', 'expirationDate']
+      required: ['name', 'description', 'isActive']
     },
-    Deposit: {
+    Stock: {
       type: 'object',
       properties: {
         productId: { type: 'string', example: 'any' },
@@ -96,19 +103,15 @@ const doc = {
       },
       required: ['productId', 'quantity']
     },
-    Group: {
+    User: {
       type: 'object',
       properties: {
-        name: { type: 'string', example: 'any' }
+        firstName: { type: 'string', example: 'John' },
+        lastName: { type: 'string', example: 'Doe' },
+        email: { type: 'string', example: 'john.doe@example.com' },
+        password: { type: 'string', example: 'password123' }
       },
-      required: ['name']
-    },
-    Categories: {
-      type: 'object',
-      properties: {
-        name: { type: 'string', example: 'any' }
-      },
-      required: ['name']
+      required: ['firstName', 'lastName', 'email', 'password']
     }
   }
 };
