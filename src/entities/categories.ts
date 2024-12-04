@@ -11,4 +11,7 @@ export class Categories {
 
   @Column({ type: 'varchar', nullable: false })
   description: string;
+
+  @Column({ type: 'boolean', nullable: false })
+  isActive: boolean;
 }

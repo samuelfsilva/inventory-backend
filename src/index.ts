@@ -14,11 +14,18 @@ import routeStock from "./routes/stock";
 import swaggerUi from "swagger-ui-express";
 import bodyParser from "body-parser";
 import swaggerFile from "../swagger.json";
+import cors from 'cors';
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
+
+const allowedOrigins = process.env.FRONTEND_URLS?.split(',').map(origin => origin) || [];
+
+app.use(cors({
+  origin: allowedOrigins, 
+}));
 
 app.use(express.json());
 

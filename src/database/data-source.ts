@@ -19,6 +19,6 @@ export const AppDataSource = new DataSource({
     logging: true,
     entities: [Batch, Categories, Group, Product, MovementItem, Movement, Deposit, Stock, User],
     subscribers: [],
-    migrations: [],
+    migrations: ['src/migrations/*.ts'],
     migrationsTableName: "migration_table_name"
 });
