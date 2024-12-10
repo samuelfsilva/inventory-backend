@@ -6,39 +6,39 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const userSchema = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(8).required()
+  firstName: Joi.string().trim().min(1).max(150).required(),
+  lastName: Joi.string().trim().min(1).max(150).required(),
+  email: Joi.string().trim().email().required(),
+  password: Joi.string().trim().min(8).max(30).required()
+    .messages({
+      'string.pattern.base': 'The password must contain at least one uppercase letter, one lowercase letter, one number, one special character, and no spaces',
+      'string.pattern.alphanum': 'The password must contain at least one letter',
+      'string.pattern.num': 'The password must contain at least one number',
+      'string.pattern.special': 'The password must contain at least one special character',
+      'string.pattern.noSpaces': 'The password must not contain spaces',
+      'string.max': 'The password must contain at most 30 characters'
+    })
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?!.*\\s)[a-zA-Z0-9!@#$%^&*]{8,30}$'))
 });
 
+
 router.post('/', async (req: Request, res: Response) => {
-  // #swagger.tags = ['User']
-  // #swagger.description = 'Create a new user'
-  const { error } = userSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  /*
+    #swagger.tags = ['User']
+    #swagger.description = 'Create a user'
+  */
 
-  const { firstName, lastName, email, password } = req.body;
-  
-  if (!firstName || typeof firstName !== 'string' || firstName.trim() === '') {
-    return res.status(400).send('First name must be a non-empty string');
+  const { error, value } = userSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (!lastName || typeof lastName !== 'string' || lastName.trim() === '') {
-    return res.status(400).send('Last name must be a non-empty string');
-  }
-
-  if (!email || typeof email !== 'string' || email.trim() === '') {
-    return res.status(400).send('Email must be a non-empty string');
-  }
-
-  if (!password || typeof password !== 'string' || password.trim() === '') {
-    return res.status(400).send('Password must be a non-empty string');
-  }
-
-  if (/\s/.test(password)) {
-    return res.status(400).send('Password must not contain spaces');
-  }
+  const { firstName, lastName, email, password } = value;
   
   const userExists = await AppDataSource
     .getRepository(User)
@@ -46,12 +46,16 @@ router.post('/', async (req: Request, res: Response) => {
     .where("user.email = :email", { email: email })
     .getOne();
 
-  if (userExists) return res.status(400).send('Email already registered');
+  if (userExists) return res.status(400).json({
+    error: {
+      email: 'Email already registered'
+    }
+  });
 
   const user = new User();
-  user.firstName = firstName.trim();
-  user.lastName = lastName.trim();
-  user.email = email.trim();
+  user.firstName = firstName;
+  user.lastName = lastName;
+  user.email = email;
   user.password = password;
 
   await AppDataSource.manager.save(user);
@@ -60,56 +64,80 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
-  // #swagger.tags = ['User']
-  // #swagger.description = 'Get all users'
+  /*
+    #swagger.tags = ['User']
+    #swagger.description = 'Get all users'
+  */
+
   const users = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
     .getMany();
   
-  res.send(users);
+  res.status(200).json(users);
 });
 
 router.get('/active', async (req: Request, res: Response) => {
-  // #swagger.tags = ['User']
-  // #swagger.description = 'Get all active users'
+  /*
+    #swagger.tags = ['User']
+    #swagger.description = 'Get all active users'
+  */
+
   const users = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
     .where("user.isActive = :isActive", { isActive: true })
     .getMany();
   
-  res.send(users);
+  res.status(200).json(users);
 });
 
 router.get('/firstName/:firstName', async (req: Request, res: Response) => {
-  // #swagger.tags = ['User']
-  // #swagger.description = 'Get all users with first name like :firstName'
+  /*
+    #swagger.tags = ['User']
+    #swagger.description = 'Get all users by first name'
+  */
+
   const users = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
     .where("user.firstName LIKE :firstName", { firstName: `%${req.params.firstName}%` })
     .getMany();
   
-  res.send(users);
+  res.status(200).json(users);
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['User']
-  // #swagger.description = 'Get user by id'
+  /*
+    #swagger.tags = ['User']
+    #swagger.description = 'Get a user'
+  */
+
   const user = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
     .where("user.id = :id", { id: req.params.id })
     .getOne();
   
-  res.status(201).json(user);
+  res.status(200).json(user);
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['User']
-  // #swagger.description = 'Update a user'
-  const { firstName, lastName, email, password } = req.body;
+  /*
+    #swagger.tags = ['User']
+    #swagger.description = 'Update a user'
+  */
+
+  const { error, value } = userSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
+  }
+  const { firstName, lastName, email, password } = value;
 
   const user = await AppDataSource
     .getRepository(User)
@@ -117,53 +145,44 @@ router.put('/:id', async (req: Request, res: Response) => {
     .where("user.id = :id", { id: req.params.id })
     .getOne();
   
-  if (!user) return res.status(400).send('User not found');
+  if (!user) return res.status(400).json({
+    error: {
+      id: 'User not found'
+    }
+  });
 
-  if (!firstName || typeof firstName !== 'string' || firstName.trim() === '') {
-    return res.status(400).send('First name must be a non-empty string');
-  }
-
-  if (!lastName || typeof lastName !== 'string' || lastName.trim() === '') {
-    return res.status(400).send('Last name must be a non-empty string');
-  }
-
-  if (!email || typeof email !== 'string' || email.trim() === '') {
-    return res.status(400).send('Email must be a non-empty string');
-  }
-
-  if (!password || typeof password !== 'string' || password.trim() === '') {
-    return res.status(400).send('Password must be a non-empty string');
-  }
-
-  if (/\s/.test(password)) {
-    return res.status(400).send('Password must not contain spaces');
-  }
-  
   await AppDataSource
     .manager
     .update(
       User, 
       { id: user.id }, 
       { 
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.trim(),
-        password: password
+        firstName,
+        lastName,
+        email,
+        password
       })
 
-  res.status(201).json(user);
+  res.status(200).json(user);
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['User']
-  // #swagger.description = 'Delete user by id'
+  /*
+    #swagger.tags = ['User']
+    #swagger.description = 'Delete a user'
+  */
+
   const user = await AppDataSource
     .getRepository(User)
     .createQueryBuilder("user")
     .where("user.id = :id", { id: req.params.id })
     .getOne();
   
-  if (!user) return res.status(400).send('User not found');
+  if (!user) return res.status(400).json({
+    error: {
+      id: 'User not found'
+    }
+  });
   
   await AppDataSource
     .manager
@@ -171,7 +190,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       User, 
       { id: user.id })
   
-  res.send(user);
+  res.status(204).send();
 });
 
 export default router;

@@ -8,51 +8,49 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const movementItemSchema = Joi.object({
-  details: Joi.string().optional(),
-  price: Joi.number().required(),
-  quantity: Joi.number().optional(),
-  movementId: Joi.string().required(),
-  productId: Joi.string().required()
+  details: Joi.string().trim().min(1).max(250).optional(),
+  price: Joi.number().min(0).required(),
+  quantity: Joi.number().min(0).required(),
+  movementId: Joi.string().trim().length(36).required(),
+  productId: Joi.string().trim().length(36).required()
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  // #swagger.tags = ['MovementItem']
-  // #swagger.description = 'Create a new movement item'
-  const { error } = movementItemSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
-  const { details, price, quantity, movementId, productId } = req.body;
-
-  if (!details || typeof details !== 'string' || details.trim() === '') {
-    return res.status(400).send('Details must be a non-empty string');
+  /*
+    #swagger.tags = ['MovementItem']
+    #swagger.description = 'Create a new movement item'
+  */
+  
+  const { error, value } = movementItemSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (isNaN(price) || price <= 0) {
-    return res.status(400).send('Price must be a positive number');
-  }
-
-  if (quantity !== undefined && (isNaN(quantity) || quantity < 0)) {
-    return res.status(400).send('Quantity must be a non-negative number');
-  }
-
-  if (!movementId || typeof movementId !== 'string' || movementId.trim() === '') {
-    return res.status(400).send('Movement ID must be a non-empty string');
-  }
-
-  if (!productId || typeof productId !== 'string' || productId.trim() === '') {
-    return res.status(400).send('Product ID must be a non-empty string');
-  }
+  const { details, price, quantity, movementId, productId } = value;
 
   const movement = await AppDataSource.getRepository(Movement).findOneBy({ id: movementId });
-  if (!movement) return res.status(400).send('Movement not found');
+  if (!movement) return res.status(400).json({
+    error: {
+      movementId: 'Movement not found'
+    }
+  });
 
   const product = await AppDataSource.getRepository(Product).findOneBy({ id: productId });
-  if (!product) return res.status(400).send('Product not found');
+  if (!product) return res.status(400).json({
+    error: {
+      productId: 'Product not found'
+    }
+  });
 
   const movementItem = new MovementItem();
   movementItem.movement = movement;
   movementItem.product = product;
-  movementItem.details = details.trim();
+  movementItem.details = details;
   movementItem.price = price;
   movementItem.quantity = quantity;
 
@@ -62,8 +60,10 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
-  // #swagger.tags = ['MovementItem']
-  // #swagger.description = 'Get all movement items'
+  /*
+    #swagger.tags = ['MovementItem']
+    #swagger.description = 'Get all movement items'
+  */
   const movementItems = await AppDataSource
     .getRepository(MovementItem)
     .createQueryBuilder("movementItem")
@@ -71,76 +71,88 @@ router.get('/', async (req: Request, res: Response) => {
     .leftJoinAndSelect("movementItem.product", "product")
     .getMany();
 
-  res.send(movementItems);
+  res.status(200).json(movementItems);
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['MovementItem']
-  // #swagger.description = 'Get a movement item by ID'
+  /*
+    #swagger.tags = ['MovementItem']
+    #swagger.description = 'Get a movement item by ID'
+  */
   const movementItem = await AppDataSource
     .getRepository(MovementItem)
     .createQueryBuilder("movementItem")
     .where("movementItem.id = :id", { id: req.params.id })
     .getOne();
 
-  res.status(201).json(movementItem);
+  res.status(200).json(movementItem);
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['MovementItem']
-  // #swagger.description = 'Update a movement item by ID'
+  /*
+    #swagger.tags = ['MovementItem']
+    #swagger.description = 'Update a movement item by ID'
+  */
   const movementItem = await AppDataSource
     .getRepository(MovementItem)
     .createQueryBuilder("movementItem")
     .where("movementItem.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!movementItem) return res.status(400).send('Movement item not found');
+  if (!movementItem) return res.status(400).json({
+    error: {
+      id: 'Movement item not found'
+    }
+  })
 
-  const { details, price, quantity } = req.body;
-
-  if (!details || typeof details !== 'string' || details.trim() === '') {
-    return res.status(400).send('Details must be a non-empty string');
+  const { error, value } = movementItemSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (isNaN(price) || price <= 0) {
-    return res.status(400).send('Price must be a positive number');
-  }
-
-  if (quantity !== undefined && (isNaN(quantity) || quantity < 0)) {
-    return res.status(400).send('Quantity must be a non-negative number');
-  }
+  const { details, price, quantity } = value;
 
   await AppDataSource.manager.update(
     MovementItem,
     { id: movementItem.id },
     {
-      details: details.trim(),
+      details,
       price,
       quantity
     }
   );
 
-  res.status(201).json(movementItem);
+  res.status(200).json(movementItem);
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['MovementItem']
-  // #swagger.description = 'Delete a movement item by ID'
+  /*
+    #swagger.tags = ['MovementItem']
+    #swagger.description = 'Delete a movement item by ID'
+  */
   const movementItem = await AppDataSource
     .getRepository(MovementItem)
     .createQueryBuilder("movementItem")
     .where("movementItem.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!movementItem) return res.status(400).send('Movement item not found');
+  if (!movementItem) return res.status(400).json({
+    error: {
+      id: 'Movement item not found'
+    }
+  });
 
   await AppDataSource.manager.delete(
     MovementItem,
     { id: movementItem.id }
   );
 
-  res.send(movementItem);
+  res.status(204).send();
 });
 
 export default router;

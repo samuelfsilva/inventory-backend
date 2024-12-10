@@ -6,7 +6,7 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const groupSchema = Joi.object({
-  description: Joi.string().required()
+  description: Joi.string().trim().min(1).max(250).required()
 });
 
 router.post('/', async (req: Request, res: Response) => {
@@ -14,21 +14,20 @@ router.post('/', async (req: Request, res: Response) => {
     #swagger.tags = ['Group']
     #swagger.description = 'Create a new group'
   */
-  const { error } = groupSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
-  const { description } = req.body;
-
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
+  const { error, value } = groupSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (description.length > 255) {
-    return res.status(400).send('Description too long, must be less than 255 characters');
-  }
+  const { description } = value;
 
   const group = new Group();
-  group.description = description.trim();
+  group.description = description;
 
   await AppDataSource.manager.save(group);
 
@@ -45,7 +44,7 @@ router.get('/', async (req: Request, res: Response) => {
     .createQueryBuilder("group")
     .getMany();
 
-  res.send(groups);
+  res.status(200).json(groups);
 });
 
 router.get('/:id/products', async (req: Request, res: Response) => {
@@ -60,7 +59,7 @@ router.get('/:id/products', async (req: Request, res: Response) => {
     .leftJoinAndSelect("group.products", "product")
     .getMany();
 
-  res.status(201).json(group);
+  res.status(200).json(group);
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
@@ -74,7 +73,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     .where("group.id = :id", { id: req.params.id })
     .getOne();
 
-  res.status(201).json(group);
+  res.status(200).json(group);
 });
 
 router.get('/description/:description', async (req: Request, res: Response) => {
@@ -88,7 +87,7 @@ router.get('/description/:description', async (req: Request, res: Response) => {
     .where("group.description = :description", { description: req.params.description })
     .getOne();
 
-  res.status(201).json(group);
+  res.status(200).json(group);
 });
 
 router.get('/description-like/:description', async (req: Request, res: Response) => {
@@ -102,7 +101,7 @@ router.get('/description-like/:description', async (req: Request, res: Response)
     .where("group.description LIKE :description", { description: `%${req.params.description}%` })
     .getOne();
 
-  res.status(201).json(group);
+  res.status(200).json(group);
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
@@ -116,27 +115,33 @@ router.put('/:id', async (req: Request, res: Response) => {
     .where("group.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!group) return res.status(400).send('Group not found');
+  if (!group) return res.status(400).json({
+    error: {
+      id: 'Group not found'
+    }
+  });
 
-  const { description } = req.body;
-
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
+  const { error, value } = groupSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (description.length > 255) {
-    return res.status(400).send('Description too long, must be less than 255 characters');
-  }
+  const { description } = value;
 
   await AppDataSource.manager.update(
     Group,
     { id: group.id },
     {
-      description: description.trim(),
+      description,
     }
   );
 
-  res.status(201).json(group);
+  res.status(200).json(group);
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
@@ -150,14 +155,18 @@ router.delete('/:id', async (req: Request, res: Response) => {
     .where("group.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!group) return res.status(400).send('Group not found');
+  if (!group) return res.status(400).json({
+    error: {
+      id: 'Group not found'
+    }
+  });
 
   await AppDataSource.manager.delete(
     Group,
     { id: group.id }
   );
 
-  res.send(group);
+  res.status(204).send();
 });
 
 export default router;

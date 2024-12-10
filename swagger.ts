@@ -39,23 +39,24 @@ const doc = {
     Batch: {
       type: 'object',
       properties: {
-        productId: { type: 'string', example: 'any' },
+        productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
         quantity: { type: 'number', example: 100 },
-        expirationDate: { type: 'string', example: 'any' }
+        expirationDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' }
       },
       required: ['productId', 'quantity', 'expirationDate']
     },
     Categories: {
       type: 'object',
       properties: {
-        name: { type: 'string', example: 'any' }
+        description: { type: 'string', example: 'Laticínios' },
+        isActive: { type: 'boolean', example: true }
       },
-      required: ['name']
+      required: ['description', 'isActive']
     },
     Deposit: {
       type: 'object',
       properties: {
-        productId: { type: 'string', example: 'any' },
+        productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
         quantity: { type: 'number', example: 100 }
       },
       required: ['productId', 'quantity']
@@ -63,26 +64,26 @@ const doc = {
     Group: {
       type: 'object',
       properties: {
-        name: { type: 'string', example: 'any' }
+        description: { type: 'string', example: 'Compra de Natal' }
       },
-      required: ['name']
+      required: ['description']
     },
     Movement: {
       type: 'object',
       properties: {
-        movementType: { type: 'string', example: 'any' },
-        movementDate: { type: 'string', example: 'any' },
-        movementId: { type: 'string', example: 'any' }
+        movementType: { type: 'string', example: 'E' },
+        movementDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+        movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
       },
       required: ['movementType', 'movementDate', 'movementId']
     },
     MovementItem: {
       type: 'object',
       properties: {
-        details: { type: 'string', example: 'any' },
+        details: { type: 'string', example: 'Comprar sabor x' },
         price: { type: 'number', example: 100 },
         quantity: { type: 'number', example: 100 },
-        movementId: { type: 'string', example: 'any' }
+        movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
       },
       required: ['details', 'price', 'quantity', 'movementId']
     },
@@ -98,7 +99,7 @@ const doc = {
     Stock: {
       type: 'object',
       properties: {
-        productId: { type: 'string', example: 'any' },
+        productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
         quantity: { type: 'number', example: 100 }
       },
       required: ['productId', 'quantity']
@@ -113,6 +114,88 @@ const doc = {
       },
       required: ['firstName', 'lastName', 'email', 'password']
     }
+  },
+  components: {
+    schemas: {
+      Batch: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
+          quantity: { type: 'number', example: 100 },
+          expirationDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' }
+        },
+        required: ['productId', 'quantity', 'expirationDate']
+      },
+      Categories: {
+        type: 'object',
+        properties: {
+          description: { type: 'string', example: 'Laticínios' },
+          isActive: { type: 'boolean', example: true }
+        },
+        required: ['description', 'isActive']
+      },
+      Deposit: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
+          quantity: { type: 'number', example: 100 }
+        },
+        required: ['productId', 'quantity']
+      },
+      Group: {
+        type: 'object',
+        properties: {
+          description: { type: 'string', example: 'Compra de Natal' }
+        },
+        required: ['description']
+      },
+      Movement: {
+        type: 'object',
+        properties: {
+          movementType: { type: 'string', example: 'E' },
+          movementDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+          movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+        },
+        required: ['movementType', 'movementDate', 'movementId']
+      },
+      MovementItem: {
+        type: 'object',
+        properties: {
+          details: { type: 'string', example: 'Comprar sabor x' },
+          price: { type: 'number', example: 100 },
+          quantity: { type: 'number', example: 100 },
+          movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+        },
+        required: ['details', 'price', 'quantity', 'movementId']
+      },
+      Product: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', example: 'Product Name' },
+          description: { type: 'string', example: 'Product Description' },
+          isActive: { type: 'boolean', example: true }
+        },
+        required: ['name', 'description', 'isActive']
+      },
+      Stock: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
+          quantity: { type: 'number', example: 100 }
+        },
+        required: ['productId', 'quantity']
+      },
+      User: {
+        type: 'object',
+        properties: {
+          firstName: { type: 'string', example: 'John' },
+          lastName: { type: 'string', example: 'Doe' },
+          email: { type: 'string', example: 'john.doe@example.com' },
+          password: { type: 'string', example: 'password123' }
+        },
+        required: ['firstName', 'lastName', 'email', 'password']
+      }
+    }
   }
 };
 
@@ -122,3 +205,4 @@ const routes = ['./src/index.ts'];
 swaggerAutogen({ openapi: '3.1.0' })(outputFile, routes, doc).then(() => {
   console.log('Swagger file generated');
 });
+

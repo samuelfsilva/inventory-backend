@@ -6,29 +6,51 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const categoriesSchema = Joi.object({
-  description: Joi.string().optional()
-});
+  description: Joi.string().trim().min(1).max(250).required(),
+  isActive: Joi.boolean().required()
+}).required();
 
 router.post('/', async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Create a category'
+    #swagger.requestBody = {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              description: {
+                type: 'string',
+                example: 'Laticinios'
+              },
+              isActive: {
+                type: 'boolean',
+                example: true
+              }
+            }
+          }
+        }
+      }
+    }
   */
-  const { error } = categoriesSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  const { error, value } = categoriesSchema.validate(req.body);
 
-  const { description } = req.body;
-
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (description.length > 255) {
-    return res.status(400).send('Description too long, must be less than 255 characters');
-  }
+  const { description, isActive } = value;
 
   const categories = new Categories();
-  categories.description = description.trim();
+  categories.description = description;
+  categories.isActive = isActive;
 
   await AppDataSource.manager.save(categories);
 
@@ -109,6 +131,26 @@ router.put('/:id', async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Update a category'
+    #swagger.requestBody = {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              description: {
+                type: 'string',
+                example: 'Laticinios'
+              },
+              isActive: {
+                type: 'boolean',
+                example: true
+              }
+            }
+          }
+        }
+      }
+    }
   */
   const categories = await AppDataSource
     .getRepository(Categories)
@@ -118,21 +160,25 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   if (!categories) return res.status(400).send('Categories not found');
 
-  const { description } = req.body;
+  const { error, value } = categoriesSchema.validate(req.body);
 
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (description.length > 255) {
-    return res.status(400).send('Description too long, must be less than 255 characters');
-  }
+  const { description, isActive } = value;
 
   await AppDataSource.manager.update(
     Categories,
     { id: categories.id },
     {
-      description: description.trim()
+      description,
+      isActive
     }
   );
 

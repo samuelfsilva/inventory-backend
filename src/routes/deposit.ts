@@ -6,8 +6,8 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const depositSchema = Joi.object({
-  name: Joi.string().required(),
-  description: Joi.string().required()
+  name: Joi.string().trim().min(1).max(250).required(),
+  description: Joi.string().trim().min(1).max(250).optional()
 });
 
 router.post('/', async (req: Request, res: Response) => {
@@ -15,30 +15,21 @@ router.post('/', async (req: Request, res: Response) => {
     #swagger.tags = ['Deposit']
     #swagger.description = 'Create a new deposit'
   */
-  const { error } = depositSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
-  const { name, description } = req.body;
-
-  if (!name || typeof name !== 'string' || name.trim() === '') {
-    return res.status(400).send('Name must be a non-empty string');
+  const { error, value } = depositSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
-  }
-
-  if (name.length > 255) {
-    return res.status(400).send('Name too long, must be less than 255 characters');
-  }
-
-  if (description.length > 255) {
-    return res.status(400).send('Description too long, must be less than 255 characters');
-  }
+  const { name, description } = value;
 
   const deposit = new Deposit();
-  deposit.name = name.trim();
-  deposit.description = description.trim();
+  deposit.name = name;
+  deposit.description = description;
   deposit.isActive = true;
 
   await AppDataSource.manager.save(deposit);
@@ -56,7 +47,7 @@ router.get('/', async (req: Request, res: Response) => {
     .createQueryBuilder("deposit")
     .getMany();
 
-  res.send(deposits);
+  res.status(200).json(deposits);
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
@@ -70,7 +61,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     .where("deposit.id = :id", { id: req.params.id })
     .getOne();
 
-  res.status(201).json(deposit);
+  res.status(200).json(deposit);
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
@@ -84,36 +75,34 @@ router.put('/:id', async (req: Request, res: Response) => {
     .where("deposit.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!deposit) return res.status(400).send('Deposit not found');
+  if (!deposit) return res.status(400).json({
+    error: {
+      id: 'Deposit not found'
+    }
+  });
 
-  const { name, description } = req.body;
-
-  if (!name || typeof name !== 'string' || name.trim() === '') {
-    return res.status(400).send('Name must be a non-empty string');
+  const { error, value } = depositSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
-
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
-  }
-
-  if (name.length > 255) {
-    return res.status(400).send('Name too long, must be less than 255 characters');
-  }
-
-  if (description.length > 255) {
-    return res.status(400).send('Description too long, must be less than 255 characters');
-  }
+  
+  const { name, description } = value;
 
   await AppDataSource.manager.update(
     Deposit,
     { id: deposit.id },
     {
-      name: name.trim(),
-      description: description.trim()
+      name,
+      description
     }
   );
 
-  res.status(201).json(deposit);
+  res.status(200).json(deposit);
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
@@ -127,14 +116,18 @@ router.delete('/:id', async (req: Request, res: Response) => {
     .where("deposit.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!deposit) return res.status(400).send('Deposit not found');
+  if (!deposit) return res.status(400).json({
+    error: {
+      id: 'Deposit not found'
+    }
+  });
 
   await AppDataSource.manager.delete(
     Deposit,
     { id: deposit.id }
   );
 
-  res.send(deposit);
+  res.status(204).send();
 });
 
 export default router;

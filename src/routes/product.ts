@@ -6,35 +6,31 @@ import { AppDataSource } from '../database/data-source';
 const router: Router = express.Router();
 
 const productSchema = Joi.object({
-  name: Joi.string().optional(),
-  description: Joi.string().optional(),
-  isActive: Joi.boolean().optional()
+  name: Joi.string().trim().min(1).max(250).required(),
+  description: Joi.string().trim().min(1).max(250).optional(),
+  isActive: Joi.boolean().required()
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  // #swagger.tags = ['Product']
-  // #swagger.description = 'Create a new product'
+  /*
+    #swagger.tags = ['Product']
+    #swagger.description = 'Create a new product'
+  */
 
-  const { error } = productSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
-  const { name, description, isActive } = req.body;
-
-  if (!name || typeof name !== 'string' || name.trim() === '') {
-    return res.status(400).send('Name must be a non-empty string');
+  const { error, value } = productSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
-
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
-  }
-
-  if (typeof isActive !== 'boolean') {
-    return res.status(400).send('isActive must be a boolean');
-  }
+  const { name, description, isActive } = value;
 
   const product = new Product();
-  product.name = name.trim();
-  product.description = description.trim();
+  product.name = name;
+  product.description = description;
   product.isActive = isActive;
 
   await AppDataSource.manager.save(product);
@@ -43,20 +39,24 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/', async (req: Request, res: Response) => {
-  // #swagger.tags = ['Product']
-  // #swagger.description = 'Get all products'
+  /*
+    #swagger.tags = ['Product']
+    #swagger.description = 'Get all products'
+  */
 
   const products = await AppDataSource
     .getRepository(Product)
     .createQueryBuilder("product")
     .getMany();
 
-  res.send(products);
+  res.status(200).json(products);
 });
 
 router.get('/active', async (req: Request, res: Response) => {
-  // #swagger.tags = ['Product']
-  // #swagger.description = 'Get active products'
+  /*
+    #swagger.tags = ['Product']
+    #swagger.description = 'Get all active products'
+  */
 
   const products = await AppDataSource
     .getRepository(Product)
@@ -64,12 +64,14 @@ router.get('/active', async (req: Request, res: Response) => {
     .where("product.isActive = :isActive", { isActive: true })
     .getMany();
 
-  res.send(products);
+  res.status(200).json(products);
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['Product']
-  // #swagger.description = 'Get a product by id'
+  /*
+    #swagger.tags = ['Product']
+    #swagger.description = 'Get a product by id'
+  */
 
   const product = await AppDataSource
     .getRepository(Product)
@@ -77,12 +79,14 @@ router.get('/:id', async (req: Request, res: Response) => {
     .where("product.id = :id", { id: req.params.id })
     .getOne();
 
-  res.status(201).json(product);
+  res.status(200).json(product);
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['Product']
-  // #swagger.description = 'Update a product by id'
+  /*
+    #swagger.tags = ['Product']
+    #swagger.description = 'Update a product by id'
+  */
 
   const product = await AppDataSource
     .getRepository(Product)
@@ -90,38 +94,42 @@ router.put('/:id', async (req: Request, res: Response) => {
     .where("product.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!product) return res.status(400).send('Product not found');
+  if (!product) return res.status(400).json({
+    error: {
+      id: 'Product not found'
+    }
+  });
 
-  const { name, description, isActive } = req.body;
-
-  if (!name || typeof name !== 'string' || name.trim() === '') {
-    return res.status(400).send('Name must be a non-empty string');
+  const { error, value } = productSchema.validate(req.body);
+  if (error) {
+    const { path, message } = error.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message
+      }
+    });
   }
 
-  if (!description || typeof description !== 'string' || description.trim() === '') {
-    return res.status(400).send('Description must be a non-empty string');
-  }
-
-  if (typeof isActive !== 'boolean') {
-    return res.status(400).send('isActive must be a boolean');
-  }
+  const { name, description, isActive } = value;
 
   await AppDataSource.manager.update(
     Product,
     { id: product.id },
     {
-      name: name.trim(),
-      description: description.trim(),
+      name,
+      description,
       isActive
     }
   );
 
-  res.status(201).json(product);
+  res.status(200).json(product);
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
-  // #swagger.tags = ['Product']
-  // #swagger.description = 'Delete a product by id'
+  /*
+    #swagger.tags = ['Product']
+    #swagger.description = 'Delete a product by id'
+  */
 
   const product = await AppDataSource
     .getRepository(Product)
@@ -129,14 +137,18 @@ router.delete('/:id', async (req: Request, res: Response) => {
     .where("product.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!product) return res.status(400).send('Product not found');
+  if (!product) return res.status(400).json({
+    error: {
+      id: 'Product not found'
+    }
+  });
 
   await AppDataSource.manager.delete(
     Product,
     { id: product.id }
   );
 
-  res.send(product);
+  res.status(204).send();
 });
 
 export default router;
