@@ -1,16 +1,16 @@
-import express, { Router, Request, Response } from 'express';
-import Joi from 'joi';
-import { Categories } from '../entities/categories';
-import { AppDataSource } from '../database/data-source';
+import express, { Request, Response, Router } from "express";
+import Joi from "joi";
+import { AppDataSource } from "../database/data-source";
+import { Categories } from "../entities/categories";
 
 const router: Router = express.Router();
 
 const categoriesSchema = Joi.object({
   description: Joi.string().trim().min(1).max(250).required(),
-  isActive: Joi.boolean().required()
+  isActive: Joi.boolean().required(),
 }).required();
 
-router.post('/', async (req: Request, res: Response) => {
+router.post("/", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Create a category'
@@ -41,8 +41,8 @@ router.post('/', async (req: Request, res: Response) => {
     const { path, message } = error.details[0];
     return res.status(400).json({
       error: {
-        [path.toString()]: message
-      }
+        [path.toString()]: message,
+      },
     });
   }
 
@@ -57,77 +57,79 @@ router.post('/', async (req: Request, res: Response) => {
   res.status(201).json(categories);
 });
 
-router.get('/', async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Get all categories'
   */
-  const categories = await AppDataSource
-    .getRepository(Categories)
+  const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
     .getMany();
 
-  res.send(categories);
+  res.status(200).json(categories);
 });
 
-router.get('/:id', async (req: Request, res: Response) => {
+router.get("/:id", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Get a category by id'
   */
-  const categories = await AppDataSource
-    .getRepository(Categories)
+  const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
     .where("categories.id = :id", { id: req.params.id })
     .getOne();
 
-  res.status(201).json(categories);
+  res.status(200).json(categories);
 });
 
-router.get('/description/:description', async (req: Request, res: Response) => {
+router.get("/description/:description", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Get a category by description'
   */
-  const categories = await AppDataSource
-    .getRepository(Categories)
+  const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
-    .where("categories.description = :description", { description: req.params.description })
+    .where("categories.description = :description", {
+      description: req.params.description,
+    })
     .getOne();
 
-  res.status(201).json(categories);
+  res.status(200).json(categories);
 });
 
-router.get('/description-like/:description', async (req: Request, res: Response) => {
-  /*
+router.get(
+  "/description-like/:description",
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Get all categories with description like :description'
   */
-  const categories = await AppDataSource
-    .getRepository(Categories)
-    .createQueryBuilder("categories")
-    .where("categories.description LIKE :description", { description: `%${req.params.description}%` })
-    .getMany();
+    const categories = await AppDataSource.getRepository(Categories)
+      .createQueryBuilder("categories")
+      .where("categories.description LIKE :description", {
+        description: `%${req.params.description}%`,
+      })
+      .getMany();
 
-  res.status(201).json(categories);
-});
+    res.status(200).json(categories);
+  }
+);
 
-router.get('/:id/products', async (req: Request, res: Response) => {
+router.get("/:id/products", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Get all products of a category'
   */
-  const categories = await AppDataSource
-    .getRepository(Categories)
+  const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
     .where("categories.id = :id", { id: req.params.id })
     .leftJoinAndSelect("categories.products", "products")
     .getOne();
 
-  res.status(201).json(categories);
+  res.status(200).json(categories);
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put("/:id", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Update a category'
@@ -152,13 +154,17 @@ router.put('/:id', async (req: Request, res: Response) => {
       }
     }
   */
-  const categories = await AppDataSource
-    .getRepository(Categories)
+  const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
     .where("categories.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!categories) return res.status(400).send('Categories not found');
+  if (!categories)
+    return res.status(400).json({
+      error: {
+        id: "Categories not found",
+      },
+    });
 
   const { error, value } = categoriesSchema.validate(req.body);
 
@@ -166,8 +172,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { path, message } = error.details[0];
     return res.status(400).json({
       error: {
-        [path.toString()]: message
-      }
+        [path.toString()]: message,
+      },
     });
   }
 
@@ -178,33 +184,33 @@ router.put('/:id', async (req: Request, res: Response) => {
     { id: categories.id },
     {
       description,
-      isActive
+      isActive,
     }
   );
 
-  res.status(201).json(categories);
+  res.status(200).json(categories);
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete("/:id", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
     #swagger.description = 'Delete a category'
   */
-  const categories = await AppDataSource
-    .getRepository(Categories)
+  const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
     .where("categories.id = :id", { id: req.params.id })
     .getOne();
 
-  if (!categories) return res.status(400).send('Categories not found');
+  if (!categories)
+    return res.status(400).json({
+      error: {
+        id: "Categories not found",
+      },
+    });
 
-  await AppDataSource.manager.delete(
-    Categories,
-    { id: categories.id }
-  );
+  await AppDataSource.manager.delete(Categories, { id: categories.id });
 
-  res.send(categories);
+  res.status(204).send();
 });
 
 export default router;
-
