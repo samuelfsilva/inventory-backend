@@ -48,6 +48,21 @@ router.post("/", async (req: Request, res: Response) => {
 
   const { description, isActive } = value;
 
+  const category = await AppDataSource.getRepository(Categories)
+    .createQueryBuilder("categories")
+    .where("UPPER(categories.description) = UPPER(:description)", {
+      description,
+    })
+    .getOne();
+
+  if (category) {
+    return res.status(400).json({
+      error: {
+        description: "Category already exists",
+      },
+    });
+  }
+
   const categories = new Categories();
   categories.description = description;
   categories.isActive = isActive;
