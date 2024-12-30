@@ -1,6 +1,7 @@
 import express, { Request, Response, Router } from "express";
 import Joi from "joi";
 import { AppDataSource } from "../database/data-source";
+import { Deposit } from "../entities/deposit";
 import { Product } from "../entities/product";
 import { Stock } from "../entities/stock";
 
@@ -8,10 +9,11 @@ const router: Router = express.Router();
 
 const stockSchema = Joi.object({
   quantity: Joi.number().min(0).required(),
+  depositId: Joi.string().trim().uuid().required(),
   productId: Joi.string().trim().length(36).required(),
 });
 
-const paramsSchema = Joi.object({
+const stockParamsSchema = Joi.object({
   id: Joi.string().trim().uuid().required(),
 });
 
@@ -31,11 +33,12 @@ router.post("/", async (req: Request, res: Response) => {
     });
   }
 
-  const { productId, quantity } = value;
+  const { productId, quantity, depositId } = value;
 
   const stockExists = await AppDataSource.getRepository(Stock)
     .createQueryBuilder("stock")
     .where("stock.product.id = :productId", { productId })
+    .andWhere("stock.deposit.id = :depositId", { depositId })
     .getOne();
 
   if (stockExists) {
@@ -61,6 +64,19 @@ router.post("/", async (req: Request, res: Response) => {
     });
 
   stock.product = product;
+
+  const deposit = await AppDataSource.getRepository(Deposit).findOneBy({
+    id: depositId,
+  });
+
+  if (!deposit)
+    return res.status(400).json({
+      error: {
+        message: "Deposit not found",
+      },
+    });
+
+  stock.deposit = deposit;
 
   await AppDataSource.manager.save(stock);
 
@@ -99,10 +115,24 @@ router.get("/:id", async (req: Request, res: Response) => {
     #swagger.tags = ['Stock']
     #swagger.description = 'Get a stock by id' 
   */
+  const { error: paramsError, value: valueParams } = stockParamsSchema.validate(
+    req.params
+  );
+
+  if (paramsError) {
+    const { path, message } = paramsError.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
 
   const stock = await AppDataSource.getRepository(Stock)
     .createQueryBuilder("stock")
-    .where("stock.id = :id", { id: req.params.id })
+    .where("stock.id = :id", { id })
     .getOne();
 
   res.status(200).json(stock);
@@ -114,7 +144,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     #swagger.description = 'Update a stock'
   */
 
-  const { error: paramsError, value: valueParams } = paramsSchema.validate(
+  const { error: paramsError, value: valueParams } = stockParamsSchema.validate(
     req.params
   );
 
@@ -140,7 +170,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     });
   }
 
-  const { productId, quantity } = value;
+  const { productId, quantity, depositId } = value;
 
   const stock = await AppDataSource.getRepository(Stock)
     .createQueryBuilder("stock")
@@ -151,6 +181,17 @@ router.put("/:id", async (req: Request, res: Response) => {
     return res.status(400).json({
       error: {
         id: "Stock not found",
+      },
+    });
+
+  const deposit = await AppDataSource.getRepository(Deposit).findOneBy({
+    id: depositId,
+  });
+
+  if (!deposit)
+    return res.status(400).json({
+      error: {
+        deposit: "Deposit not found",
       },
     });
 
@@ -171,6 +212,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     {
       quantity,
       product,
+      deposit,
     }
   );
 
@@ -182,7 +224,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     #swagger.tags = ['Stock']
     #swagger.description = 'Delete a stock'
   */
-  const { error: paramsError, value: valueParams } = paramsSchema.validate(
+  const { error: paramsError, value: valueParams } = stockParamsSchema.validate(
     req.params
   );
 
