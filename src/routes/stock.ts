@@ -138,6 +138,64 @@ router.get("/:id", async (req: Request, res: Response) => {
   res.status(200).json(stock);
 });
 
+router.get("/deposit/:depositId", async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Stock']
+    #swagger.description = 'Get all stocks by deposit'
+  */
+
+  const { error: paramsError, value: valueParams } = stockParamsSchema.validate(
+    req.params
+  );
+
+  if (paramsError) {
+    const { path, message } = paramsError.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { depositId } = valueParams;
+
+  const stocks = await AppDataSource.getRepository(Stock)
+    .createQueryBuilder("stock")
+    .where("stock.deposit.id = :depositId", { depositId })
+    .getMany();
+
+  res.status(200).json(stocks);
+});
+
+router.get("/product/:productId", async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Stock']
+    #swagger.description = 'Get all stocks by product'
+  */
+
+  const { error: paramsError, value: valueParams } = stockParamsSchema.validate(
+    req.params
+  );
+
+  if (paramsError) {
+    const { path, message } = paramsError.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { productId } = valueParams;
+
+  const stocks = await AppDataSource.getRepository(Stock)
+    .createQueryBuilder("stock")
+    .where("stock.product.id = :productId", { productId })
+    .getMany();
+
+  res.status(200).json(stocks);
+});
+
 router.put("/:id", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Stock']
