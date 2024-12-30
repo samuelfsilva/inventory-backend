@@ -1,14 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Product } from './product';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Deposit } from "./deposit";
+import { Product } from "./product";
 
 @Entity()
 export class Stock {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Product, (product) => product.stock)
   product: Product;
-  
-  @Column({ type: 'numeric', nullable: false })
+
+  @ManyToOne(() => Deposit, (deposit) => deposit.stock)
+  @JoinColumn({ name: "depositId" })
+  deposit: Deposit;
+
+  @Column({ type: "numeric", nullable: false })
   quantity: number;
 }
