@@ -10,6 +10,10 @@ const categoriesSchema = Joi.object({
   isActive: Joi.boolean().required(),
 }).required();
 
+const categoriesParamsSchema = Joi.object({
+  id: Joi.string().uuid().required(),
+});
+
 router.post("/", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Categories']
@@ -35,6 +39,7 @@ router.post("/", async (req: Request, res: Response) => {
       }
     }
   */
+
   const { error, value } = categoriesSchema.validate(req.body);
 
   if (error) {
@@ -89,9 +94,23 @@ router.get("/:id", async (req: Request, res: Response) => {
     #swagger.tags = ['Categories']
     #swagger.description = 'Get a category by id'
   */
+  const { error: errorParams, value: valueParams } =
+    categoriesParamsSchema.validate(req.params);
+
+  if (errorParams) {
+    const { path, message } = errorParams.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
+
   const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
-    .where("categories.id = :id", { id: req.params.id })
+    .where("categories.id = :id", { id })
     .getOne();
 
   res.status(200).json(categories);
@@ -135,9 +154,24 @@ router.get("/:id/products", async (req: Request, res: Response) => {
     #swagger.tags = ['Categories']
     #swagger.description = 'Get all products of a category'
   */
+
+  const { error: errorParams, value: valueParams } =
+    categoriesParamsSchema.validate(req.params);
+
+  if (errorParams) {
+    const { path, message } = errorParams.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
+
   const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
-    .where("categories.id = :id", { id: req.params.id })
+    .where("categories.id = :id", { id })
     .leftJoinAndSelect("categories.products", "products")
     .getOne();
 
@@ -169,9 +203,23 @@ router.put("/:id", async (req: Request, res: Response) => {
       }
     }
   */
+  const { error: errorParams, value: valueParams } =
+    categoriesParamsSchema.validate(req.params);
+
+  if (errorParams) {
+    const { path, message } = errorParams.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
+
   const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
-    .where("categories.id = :id", { id: req.params.id })
+    .where("categories.id = :id", { id })
     .getOne();
 
   if (!categories)
@@ -194,6 +242,22 @@ router.put("/:id", async (req: Request, res: Response) => {
 
   const { description, isActive } = value;
 
+  const categoryExist = await AppDataSource.getRepository(Categories)
+    .createQueryBuilder("categories")
+    .where("UPPER(categories.description) = UPPER(:description)", {
+      description,
+    })
+    .andWhere("categories.id != :id", { id: categories.id })
+    .getOne();
+
+  if (categoryExist) {
+    return res.status(400).json({
+      error: {
+        description: "Category already exists",
+      },
+    });
+  }
+
   await AppDataSource.manager.update(
     Categories,
     { id: categories.id },
@@ -211,9 +275,23 @@ router.delete("/:id", async (req: Request, res: Response) => {
     #swagger.tags = ['Categories']
     #swagger.description = 'Delete a category'
   */
+  const { error: errorParams, value: valueParams } =
+    categoriesParamsSchema.validate(req.params);
+
+  if (errorParams) {
+    const { path, message } = errorParams.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
+
   const categories = await AppDataSource.getRepository(Categories)
     .createQueryBuilder("categories")
-    .where("categories.id = :id", { id: req.params.id })
+    .where("categories.id = :id", { id })
     .getOne();
 
   if (!categories)

@@ -12,6 +12,10 @@ const batchSchema = Joi.object({
   productId: Joi.string().uuid().required(),
 });
 
+const batchParamsSchema = Joi.object({
+  id: Joi.string().uuid().required(),
+});
+
 router.post("/", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Batch']
@@ -68,9 +72,25 @@ router.get("/:id", async (req: Request, res: Response) => {
     #swagger.tags = ['Batch']
     #swagger.description = 'Get a batch by id'
   */
+
+  const { error: errorParams, value: valueParams } = batchParamsSchema.validate(
+    req.params
+  );
+
+  if (errorParams) {
+    const { path, message } = errorParams.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
+
   const batch = await AppDataSource.getRepository(Batch)
     .createQueryBuilder("batch")
-    .where("batch.id = :id", { id: req.params.id })
+    .where("batch.id = :id", { id })
     .getOne();
 
   res.status(200).json(batch);
@@ -81,9 +101,25 @@ router.put("/:id", async (req: Request, res: Response) => {
     #swagger.tags = ['Batch']
     #swagger.description = 'Update a batch by id'
   */
+
+  const { error: errorParams, value: valueParams } = batchParamsSchema.validate(
+    req.params
+  );
+
+  if (errorParams) {
+    const { path, message } = errorParams.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
+
   const batchs = await AppDataSource.getRepository(Batch)
     .createQueryBuilder("batch")
-    .where("batch.id = :id", { id: req.params.id })
+    .where("batch.id = :id", { id })
     .getOne();
 
   if (!batchs)
@@ -135,9 +171,25 @@ router.delete("/:id", async (req: Request, res: Response) => {
     #swagger.tags = ['Batch']
     #swagger.description = 'Delete a batch by id'
   */
+
+  const { error: errorParams, value: valueParams } = batchParamsSchema.validate(
+    req.params
+  );
+
+  if (errorParams) {
+    const { path, message } = errorParams.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { id } = valueParams;
+
   const batchs = await AppDataSource.getRepository(Batch)
     .createQueryBuilder("batch")
-    .where("batch.id = :id", { id: req.params.id })
+    .where("batch.id = :id", { id })
     .getOne();
 
   if (!batchs)
