@@ -5,16 +5,17 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Batch } from "./batch";
 import { Deposit } from "./deposit";
-import { Product } from "./product";
 
 @Entity()
 export class Stock {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => Product, (product) => product.stock)
-  product: Product;
+  @ManyToOne(() => Batch, (batch) => batch.stock)
+  @JoinColumn({ name: "batchId" })
+  batch: Batch;
 
   @ManyToOne(() => Deposit, (deposit) => deposit.stock)
   @JoinColumn({ name: "depositId" })
