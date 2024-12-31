@@ -1,16 +1,24 @@
 import express, { Request, Response, Router } from "express";
 import Joi from "joi";
 import { AppDataSource } from "../database/data-source";
+import { Batch } from "../entities/batch";
 import { Deposit } from "../entities/deposit";
-import { Product } from "../entities/product";
 import { Stock } from "../entities/stock";
 
 const router: Router = express.Router();
 
 const stockSchema = Joi.object({
   quantity: Joi.number().min(0).required(),
-  depositId: Joi.string().trim().uuid().required(),
-  productId: Joi.string().trim().length(36).required(),
+  depositId: Joi.string()
+    .trim()
+    .uuid()
+    .messages({
+      "string.guid": "Invalid Deposit Id",
+    })
+    .required(),
+  batchId: Joi.string().trim().uuid().messages({
+    "string.guid": "Invalid Batch Id",
+  }),
 });
 
 const stockParamsSchema = Joi.object({
@@ -33,18 +41,18 @@ router.post("/", async (req: Request, res: Response) => {
     });
   }
 
-  const { productId, quantity, depositId } = value;
+  const { batchId, quantity, depositId } = value;
 
   const stockExists = await AppDataSource.getRepository(Stock)
     .createQueryBuilder("stock")
-    .where("stock.product.id = :productId", { productId })
+    .where("stock.batch.id = :batchId", { batchId })
     .andWhere("stock.deposit.id = :depositId", { depositId })
     .getOne();
 
   if (stockExists) {
     return res.status(400).json({
       error: {
-        product: "Stock already exists",
+        id: "Stock already exists",
       },
     });
   }
@@ -52,18 +60,18 @@ router.post("/", async (req: Request, res: Response) => {
   const stock = new Stock();
   stock.quantity = quantity;
 
-  const product = await AppDataSource.getRepository(Product).findOneBy({
-    id: productId,
+  const batch = await AppDataSource.getRepository(Batch).findOneBy({
+    id: batchId,
   });
 
-  if (!product)
+  if (!batch)
     return res.status(400).json({
       error: {
-        message: "Product not found",
+        batch: "Batch not found",
       },
     });
 
-  stock.product = product;
+  stock.batch = batch;
 
   const deposit = await AppDataSource.getRepository(Deposit).findOneBy({
     id: depositId,
@@ -72,7 +80,7 @@ router.post("/", async (req: Request, res: Response) => {
   if (!deposit)
     return res.status(400).json({
       error: {
-        message: "Deposit not found",
+        deposit: "Deposit not found",
       },
     });
 
@@ -167,6 +175,35 @@ router.get("/deposit/:depositId", async (req: Request, res: Response) => {
   res.status(200).json(stocks);
 });
 
+router.get("/batch/:batchId", async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Stock']
+    #swagger.description = 'Get all stocks by batch'
+  */
+
+  const { error: paramsError, value: valueParams } = stockParamsSchema.validate(
+    req.params
+  );
+
+  if (paramsError) {
+    const { path, message } = paramsError.details[0];
+    return res.status(400).json({
+      error: {
+        [path.toString()]: message,
+      },
+    });
+  }
+
+  const { batchId } = valueParams;
+
+  const stocks = await AppDataSource.getRepository(Stock)
+    .createQueryBuilder("stock")
+    .where("stock.batch.id = :batchId", { batchId })
+    .getMany();
+
+  res.status(200).json(stocks);
+});
+
 router.get("/product/:productId", async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Stock']
@@ -190,7 +227,8 @@ router.get("/product/:productId", async (req: Request, res: Response) => {
 
   const stocks = await AppDataSource.getRepository(Stock)
     .createQueryBuilder("stock")
-    .where("stock.product.id = :productId", { productId })
+    .leftJoinAndSelect("stock.batch", "batch")
+    .where("batch.product.id = :productId", { productId })
     .getMany();
 
   res.status(200).json(stocks);
@@ -228,7 +266,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     });
   }
 
-  const { productId, quantity, depositId } = value;
+  const { batchId, quantity, depositId } = value;
 
   const stock = await AppDataSource.getRepository(Stock)
     .createQueryBuilder("stock")
@@ -253,14 +291,14 @@ router.put("/:id", async (req: Request, res: Response) => {
       },
     });
 
-  const product = await AppDataSource.getRepository(Product).findOneBy({
-    id: productId,
+  const batch = await AppDataSource.getRepository(Batch).findOneBy({
+    id: batchId,
   });
 
-  if (!product)
+  if (!batch)
     return res.status(400).json({
       error: {
-        product: "Product not found",
+        batch: "Batch not found",
       },
     });
 
@@ -269,7 +307,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     { id: stock.id },
     {
       quantity,
-      product,
+      batch,
       deposit,
     }
   );
