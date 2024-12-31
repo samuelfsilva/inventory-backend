@@ -1,53 +1,25 @@
 import express, { Request, Response, Router } from "express";
-import Joi from "joi";
 import { AppDataSource } from "../database/data-source";
 import { Category } from "../entities/category";
 import { Group } from "../entities/group";
 import { Product } from "../entities/product";
 import validator from "../middleware/validator";
+import createProductSchema from "../schemas/product/createProductSchema";
+import { paramsProductSchema } from "../schemas/product/paramsProductSchema";
+import updateProductSchema from "../schemas/product/updateProductSchema";
 
 const router: Router = express.Router();
 
-const productSchema = Joi.object({
-  name: Joi.string().trim().min(1).max(250).required(),
-  description: Joi.string().trim().min(1).max(250).optional(),
-  isActive: Joi.boolean().required(),
-  categoryId: Joi.string()
-    .trim()
-    .uuid()
-    .messages({
-      "string.guid": "Invalid Category Id",
-    })
-    .required(),
-  groupId: Joi.string()
-    .trim()
-    .uuid()
-    .messages({
-      "string.guid": "Invalid Group Id",
-    })
-    .required(),
-});
-
-const productParamsSchema = Joi.object({
-  id: Joi.string()
-    .trim()
-    .uuid()
-    .messages({
-      "string.guid": "Invalid Product Id",
-    })
-    .required(),
-});
-
 router.post(
   "/",
-  validator(productSchema, "body"),
+  validator(createProductSchema, "body"),
   async (req: Request, res: Response) => {
     /*
     #swagger.tags = ['Product']
     #swagger.description = 'Create a new product'
   */
 
-    const { name, description, isActive, categoryId, groupId } = req.body;
+    const { name, description, categoryId, groupId } = req.body;
 
     const productExists = await AppDataSource.getRepository(Product)
       .createQueryBuilder("product")
@@ -91,7 +63,7 @@ router.post(
     const product = new Product();
     product.name = name;
     product.description = description;
-    product.isActive = isActive;
+    product.isActive = true;
     product.category = category;
     product.group = group;
 
@@ -130,7 +102,7 @@ router.get("/active", async (req: Request, res: Response) => {
 
 router.get(
   "/:id",
-  validator(productParamsSchema, "params"),
+  validator(paramsProductSchema, "params"),
   async (req: Request, res: Response) => {
     /*
     #swagger.tags = ['Product']
@@ -149,8 +121,8 @@ router.get(
 
 router.put(
   "/:id",
-  validator(productParamsSchema, "params"),
-  validator(productSchema, "body"),
+  validator(paramsProductSchema, "params"),
+  validator(updateProductSchema, "body"),
   async (req: Request, res: Response) => {
     /*
     #swagger.tags = ['Product']
@@ -230,7 +202,7 @@ router.put(
 
 router.delete(
   "/:id",
-  validator(productParamsSchema, "params"),
+  validator(paramsProductSchema, "params"),
   async (req: Request, res: Response) => {
     /*
     #swagger.tags = ['Product']

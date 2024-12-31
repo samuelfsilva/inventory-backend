@@ -1,55 +1,47 @@
 import express, { Request, Response, Router } from "express";
-import Joi from "joi";
 import { AppDataSource } from "../database/data-source";
 import { Group } from "../entities/group";
+import validator from "../middleware/validator";
+import createGroupSchema from "../schemas/group/createGroupSchema";
+import {
+  descriptionGroupSchema,
+  paramsGroupSchema,
+} from "../schemas/group/paramsGroupSchema";
+import updateGroupSchema from "../schemas/group/updateGroupSchema";
 
 const router: Router = express.Router();
 
-const groupSchema = Joi.object({
-  description: Joi.string().trim().min(1).max(250).required(),
-});
-
-const groupParamsSchema = Joi.object({
-  id: Joi.string().uuid().required(),
-});
-
-router.post("/", async (req: Request, res: Response) => {
-  /*
+router.post(
+  "/",
+  validator(createGroupSchema, "body"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Group']
     #swagger.description = 'Create a new group'
   */
-  const { error, value } = groupSchema.validate(req.body);
-  if (error) {
-    const { path, message } = error.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const { description } = req.body;
+
+    const groupExists = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("UPPER(group.description) = UPPER(:description)", { description })
+      .getOne();
+
+    if (groupExists) {
+      return res.status(400).json({
+        error: {
+          description: "Group already exists",
+        },
+      });
+    }
+
+    const group = new Group();
+    group.description = description;
+
+    await AppDataSource.manager.save(group);
+
+    res.status(201).json(group);
   }
-
-  const { description } = value;
-
-  const groupExists = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("UPPER(group.description) = UPPER(:description)", { description })
-    .getOne();
-
-  if (groupExists) {
-    return res.status(400).json({
-      error: {
-        description: "Group already exists",
-      },
-    });
-  }
-
-  const group = new Group();
-  group.description = description;
-
-  await AppDataSource.manager.save(group);
-
-  res.status(201).json(group);
-});
+);
 
 router.get("/", async (req: Request, res: Response) => {
   /*
@@ -63,91 +55,61 @@ router.get("/", async (req: Request, res: Response) => {
   res.status(200).json(groups);
 });
 
-router.get("/:id/products", async (req: Request, res: Response) => {
-  /*
+router.get(
+  "/:id/products",
+  validator(paramsGroupSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Group']
     #swagger.description = 'Get all products from a group'
   */
 
-  const { error: errorParams, value: valueParams } = groupParamsSchema.validate(
-    req.params
-  );
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const group = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("group.id = :id", { id })
+      .leftJoinAndSelect("group.products", "product")
+      .getMany();
+
+    res.status(200).json(group);
   }
+);
 
-  const { id } = valueParams;
-
-  const group = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("group.id = :id", { id })
-    .leftJoinAndSelect("group.products", "product")
-    .getMany();
-
-  res.status(200).json(group);
-});
-
-router.get("/:id", async (req: Request, res: Response) => {
-  /*
+router.get(
+  "/:id",
+  validator(paramsGroupSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Group']
     #swagger.description = 'Get a group'
   */
 
-  const { error: errorParams, value: valueParams } = groupParamsSchema.validate(
-    req.params
-  );
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const group = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("group.id = :id", { id })
+      .getOne();
+
+    res.status(200).json(group);
   }
-
-  const { id } = valueParams;
-
-  const group = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("group.id = :id", { id })
-    .getOne();
-
-  res.status(200).json(group);
-});
-
-router.get("/description/:description", async (req: Request, res: Response) => {
-  /*
-    #swagger.tags = ['Group']
-    #swagger.description = 'Get a group by description'
-  */
-  const group = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("group.description = :description", {
-      description: req.params.description,
-    })
-    .getOne();
-
-  res.status(200).json(group);
-});
+);
 
 router.get(
-  "/description-like/:description",
+  "/description/:description",
+  validator(descriptionGroupSchema, "params"),
   async (req: Request, res: Response) => {
     /*
     #swagger.tags = ['Group']
-    #swagger.description = 'Get a group by description like'
+    #swagger.description = 'Get a group by description'
   */
+    const { description } = req.params;
+
     const group = await AppDataSource.getRepository(Group)
       .createQueryBuilder("group")
-      .where("group.description LIKE :description", {
-        description: `%${req.params.description}%`,
+      .where("group.description = :description", {
+        description,
       })
       .getOne();
 
@@ -155,112 +117,106 @@ router.get(
   }
 );
 
-router.put("/:id", async (req: Request, res: Response) => {
-  /*
+router.get(
+  "/description-like/:description",
+  validator(descriptionGroupSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
+    #swagger.tags = ['Group']
+    #swagger.description = 'Get a group by description like'
+  */
+    const { description } = req.params;
+
+    const group = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("group.description LIKE :description", {
+        description: `%${description}%`,
+      })
+      .getOne();
+
+    res.status(200).json(group);
+  }
+);
+
+router.put(
+  "/:id",
+  validator(paramsGroupSchema, "params"),
+  validator(updateGroupSchema, "body"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Group']
     #swagger.description = 'Update a group'
   */
 
-  const { error: errorParams, value: valueParams } = groupParamsSchema.validate(
-    req.params
-  );
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
-  }
+    const group = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("group.id = :id", { id })
+      .getOne();
 
-  const { id } = valueParams;
+    if (!group)
+      return res.status(400).json({
+        error: {
+          id: "Group not found",
+        },
+      });
 
-  const group = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("group.id = :id", { id })
-    .getOne();
+    const { description } = req.body;
 
-  if (!group)
-    return res.status(400).json({
-      error: {
-        id: "Group not found",
-      },
-    });
+    const groupExists = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("UPPER(group.description) = UPPER(:description)", { description })
+      .andWhere("group.id != :id", { id: group.id })
+      .getOne();
 
-  const { error, value } = groupSchema.validate(req.body);
-  if (error) {
-    const { path, message } = error.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
-  }
-
-  const { description } = value;
-
-  const groupExists = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("UPPER(group.description) = UPPER(:description)", { description })
-    .andWhere("group.id != :id", { id: group.id })
-    .getOne();
-
-  if (groupExists) {
-    return res.status(400).json({
-      error: {
-        description: "Group already exists",
-      },
-    });
-  }
-
-  await AppDataSource.manager.update(
-    Group,
-    { id: group.id },
-    {
-      description,
+    if (groupExists) {
+      return res.status(400).json({
+        error: {
+          description: "Group already exists",
+        },
+      });
     }
-  );
 
-  res.status(200).json(group);
-});
+    await AppDataSource.manager.update(
+      Group,
+      { id: group.id },
+      {
+        description,
+      }
+    );
 
-router.delete("/:id", async (req: Request, res: Response) => {
-  /*
+    res.status(200).json(group);
+  }
+);
+
+router.delete(
+  "/:id",
+  validator(paramsGroupSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Group']
     #swagger.description = 'Delete a group'
   */
 
-  const { error: errorParams, value: valueParams } = groupParamsSchema.validate(
-    req.params
-  );
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const group = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("group.id = :id", { id })
+      .getOne();
+
+    if (!group)
+      return res.status(400).json({
+        error: {
+          id: "Group not found",
+        },
+      });
+
+    await AppDataSource.manager.delete(Group, { id: group.id });
+
+    res.status(204).send();
   }
-
-  const { id } = valueParams;
-
-  const group = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("group.id = :id", { id })
-    .getOne();
-
-  if (!group)
-    return res.status(400).json({
-      error: {
-        id: "Group not found",
-      },
-    });
-
-  await AppDataSource.manager.delete(Group, { id: group.id });
-
-  res.status(204).send();
-});
+);
 
 export default router;

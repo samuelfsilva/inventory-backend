@@ -1,59 +1,50 @@
 import express, { Request, Response, Router } from "express";
-import Joi from "joi";
 import { AppDataSource } from "../database/data-source";
 import { Movement } from "../entities/movement";
 import { User } from "../entities/user";
+import validator from "../middleware/validator";
+import createMovementSchema from "../schemas/movement/createMovementSchema";
+import {
+  movementDateSchema,
+  movementPeriodSchema,
+  paramsMovementSchema,
+} from "../schemas/movement/paramsMovementSchema";
+import updateMovementSchema from "../schemas/movement/updateMovementSchema";
 
 const router: Router = express.Router();
 
-const movementSchema = Joi.object({
-  userId: Joi.string().trim().length(36).required(),
-  movementDate: Joi.date().max("now").required(),
-  isActive: Joi.boolean().required(),
-});
-
-const movementParamsSchema = Joi.object({
-  id: Joi.string().uuid().required(),
-});
-
-router.post("/", async (req: Request, res: Response) => {
-  /*
+router.post(
+  "/",
+  validator(createMovementSchema, "body"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Movement']
     #swagger.description = 'Create a new movement'
   */
-  const { error, value } = movementSchema.validate(req.body);
-  if (error) {
-    const { path, message } = error.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const { movementDate, userId } = req.body;
+
+    const userExists = await AppDataSource.getRepository(User)
+      .createQueryBuilder("user")
+      .where("user.id = :id", { id: userId })
+      .getOne();
+
+    if (!userExists)
+      return res.status(400).json({
+        error: {
+          userId: "User not found",
+        },
+      });
+
+    const movement = new Movement();
+    movement.isActive = true;
+    movement.movementDate = movementDate;
+    movement.user = userExists;
+
+    await AppDataSource.manager.save(movement);
+
+    res.status(201).json(movement);
   }
-
-  const { isActive, movementDate, userId } = value;
-
-  const userExists = await AppDataSource.getRepository(User)
-    .createQueryBuilder("user")
-    .where("user.id = :id", { id: userId })
-    .getOne();
-
-  if (!userExists)
-    return res.status(400).json({
-      error: {
-        userId: "User not found",
-      },
-    });
-
-  const movement = new Movement();
-  movement.isActive = isActive;
-  movement.movementDate = movementDate;
-  movement.user = userExists;
-
-  await AppDataSource.manager.save(movement);
-
-  res.status(201).json(movement);
-});
+);
 
 router.get("/", async (req: Request, res: Response) => {
   /*
@@ -81,89 +72,57 @@ router.get("/active", async (req: Request, res: Response) => {
   res.status(200).json(movements);
 });
 
-router.get("/:id", async (req: Request, res: Response) => {
-  /*
+router.get(
+  "/:id",
+  validator(paramsMovementSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Movement']
     #swagger.description = 'Get a movement by ID'
   */
 
-  const { error: errorParams, value: valueParams } =
-    movementParamsSchema.validate(req.params);
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const movement = await AppDataSource.getRepository(Movement)
+      .createQueryBuilder("movement")
+      .where("movement.id = :id", { id })
+      .getOne();
+
+    res.status(200).json(movement);
   }
+);
 
-  const { id } = valueParams;
-
-  const movement = await AppDataSource.getRepository(Movement)
-    .createQueryBuilder("movement")
-    .where("movement.id = :id", { id })
-    .getOne();
-
-  res.status(200).json(movement);
-});
-
-router.get("/:id/items", async (req: Request, res: Response) => {
-  /*
+router.get(
+  "/:id/items",
+  validator(paramsMovementSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Movement']
     #swagger.description = 'Get a movement by ID'
   */
 
-  const { error: errorParams, value: valueParams } =
-    movementParamsSchema.validate(req.params);
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const movement = await AppDataSource.getRepository(Movement)
+      .createQueryBuilder("movement")
+      .where("movement.id = :id", { id })
+      .leftJoinAndSelect("movement.items", "movement_item")
+      .leftJoinAndSelect("movementItems.product", "product")
+      .getOne();
+
+    res.status(200).json(movement);
   }
-
-  const { id } = valueParams;
-
-  const movement = await AppDataSource.getRepository(Movement)
-    .createQueryBuilder("movement")
-    .where("movement.id = :id", { id })
-    .leftJoinAndSelect("movement.items", "movement_item")
-    .leftJoinAndSelect("movementItems.product", "product")
-    .getOne();
-
-  res.status(200).json(movement);
-});
+);
 
 router.get(
   "/movementPeriod/:startDate/:endDate",
+  validator(movementPeriodSchema, "params"),
   async (req: Request, res: Response) => {
     /*
     #swagger.tags = ['Movement']
     #swagger.description = 'Get all movements in a given period'
   */
-    const movementPeriodSchema = Joi.object({
-      startDate: Joi.date().required(),
-      endDate: Joi.date().min(Joi.ref("startDate")).required().messages({
-        "date.min": 'The end date must be greater than or equal to start date"',
-      }),
-    });
-
-    const { error, value } = movementPeriodSchema.validate(req.params);
-    if (error) {
-      const { path, message } = error.details[0];
-      return res.status(400).json({
-        error: {
-          [path.toString()]: message,
-        },
-      });
-    }
-
-    const { startDate, endDate } = value;
+    const { startDate, endDate } = req.params;
 
     const movements = await AppDataSource.getRepository(Movement)
       .createQueryBuilder("movement")
@@ -179,34 +138,14 @@ router.get(
 
 router.get(
   "/movementDate/:movementDate",
+  validator(movementDateSchema, "params"),
   async (req: Request, res: Response) => {
     /*
     #swagger.tags = ['Movement']
     #swagger.description = 'Get all movements in a given date'
   */
 
-    const movementDateSchema = Joi.object({
-      movementDate: Joi.date().required(),
-    });
-
-    const { error, value } = movementDateSchema.validate(req.params);
-    if (error) {
-      const { path, message } = error.details[0];
-      return res.status(400).json({
-        error: {
-          [path.toString()]: message,
-        },
-      });
-    }
-
-    const { movementDate } = value;
-
-    if (isNaN(movementDate.getTime()))
-      return res.status(400).json({
-        error: {
-          movementDate: "Invalid date",
-        },
-      });
+    const { movementDate } = req.params;
 
     const movements = await AppDataSource.getRepository(Movement)
       .createQueryBuilder("movement")
@@ -217,106 +156,81 @@ router.get(
   }
 );
 
-router.put("/:id", async (req: Request, res: Response) => {
-  /*
+router.put(
+  "/:id",
+  validator(paramsMovementSchema, "params"),
+  validator(updateMovementSchema, "body"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Movement']
     #swagger.description = 'Update a movement by ID'
   */
-  const { error: errorParams, value: valueParams } =
-    movementParamsSchema.validate(req.params);
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
-  }
+    const { isActive, movementDate, userId } = req.body;
 
-  const { id } = valueParams;
+    const movement = await AppDataSource.getRepository(Movement)
+      .createQueryBuilder("movement")
+      .where("movement.id = :movementId", { movementId: id })
+      .getOne();
 
-  const { error, value } = movementSchema.validate(req.body);
-  if (error) {
-    const { path, message } = error.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
-  }
+    const user = await AppDataSource.getRepository(User)
+      .createQueryBuilder("user")
+      .where("user.id = :userId", { userId: userId })
+      .getOne();
 
-  const { isActive, movementDate, userId } = value;
-
-  const movement = await AppDataSource.getRepository(Movement)
-    .createQueryBuilder("movement")
-    .where("movement.id = :movementId", { movementId: id })
-    .getOne();
-
-  const user = await AppDataSource.getRepository(User)
-    .createQueryBuilder("user")
-    .where("user.id = :userId", { userId: userId })
-    .getOne();
-
-  if (!movement) {
-    return res.status(400).json({
-      error: {
-        id: "Movement not found",
-      },
-    });
-  }
-
-  if (!user) {
-    return res.status(400).json({
-      error: {
-        userId: "User not found",
-      },
-    });
-  }
-
-  await AppDataSource.manager.update(
-    Movement,
-    { id: movement.id },
-    {
-      isActive,
-      movementDate,
-      user,
+    if (!movement) {
+      return res.status(400).json({
+        error: {
+          id: "Movement not found",
+        },
+      });
     }
-  );
 
-  res.status(200).json(movement);
-});
+    if (!user) {
+      return res.status(400).json({
+        error: {
+          userId: "User not found",
+        },
+      });
+    }
 
-router.delete("/:id", async (req: Request, res: Response) => {
-  /*
+    await AppDataSource.manager.update(
+      Movement,
+      { id: movement.id },
+      {
+        isActive,
+        movementDate,
+        user,
+      }
+    );
+
+    res.status(200).json(movement);
+  }
+);
+
+router.delete(
+  "/:id",
+  validator(paramsMovementSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Movement']
     #swagger.description = 'Delete a movement by ID'
   */
 
-  const { error: errorParams, value: valueParams } =
-    movementParamsSchema.validate(req.params);
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const movement = await AppDataSource.getRepository(Movement)
+      .createQueryBuilder("movement")
+      .where("movement.id = :id", { id })
+      .getOne();
+
+    if (!movement) return res.status(400).send("Movement not found");
+
+    await AppDataSource.manager.delete(Movement, { id: movement.id });
+
+    res.status(204).send();
   }
-
-  const { id } = valueParams;
-
-  const movement = await AppDataSource.getRepository(Movement)
-    .createQueryBuilder("movement")
-    .where("movement.id = :id", { id })
-    .getOne();
-
-  if (!movement) return res.status(400).send("Movement not found");
-
-  await AppDataSource.manager.delete(Movement, { id: movement.id });
-
-  res.status(204).send();
-});
+);
 
 export default router;
