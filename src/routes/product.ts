@@ -1,7 +1,10 @@
 import express, { Request, Response, Router } from "express";
 import Joi from "joi";
 import { AppDataSource } from "../database/data-source";
+import { Categories } from "../entities/categories";
+import { Group } from "../entities/group";
 import { Product } from "../entities/product";
+import validator from "../middleware/validator";
 
 const router: Router = express.Router();
 
@@ -9,51 +12,94 @@ const productSchema = Joi.object({
   name: Joi.string().trim().min(1).max(250).required(),
   description: Joi.string().trim().min(1).max(250).optional(),
   isActive: Joi.boolean().required(),
+  categoryId: Joi.string()
+    .trim()
+    .uuid()
+    .messages({
+      "string.guid": "Invalid Category Id",
+    })
+    .required(),
+  groupId: Joi.string()
+    .trim()
+    .uuid()
+    .messages({
+      "string.guid": "Invalid Group Id",
+    })
+    .required(),
 });
 
 const productParamsSchema = Joi.object({
-  id: Joi.string().uuid().required(),
+  id: Joi.string()
+    .trim()
+    .uuid()
+    .messages({
+      "string.guid": "Invalid Product Id",
+    })
+    .required(),
 });
 
-router.post("/", async (req: Request, res: Response) => {
-  /*
+router.post(
+  "/",
+  validator(productSchema, "body"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Product']
     #swagger.description = 'Create a new product'
   */
 
-  const { error, value } = productSchema.validate(req.body);
-  if (error) {
-    const { path, message } = error.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const { name, description, isActive, categoryId, groupId } = req.body;
+
+    const productExists = await AppDataSource.getRepository(Product)
+      .createQueryBuilder("product")
+      .where("UPPER(product.name) = UPPER(:name)", { name })
+      .getOne();
+
+    if (productExists) {
+      return res.status(400).json({
+        error: {
+          name: "Product already exists",
+        },
+      });
+    }
+
+    const category = await AppDataSource.getRepository(Categories)
+      .createQueryBuilder("category")
+      .where("category.id = :id", { id: categoryId })
+      .getOne();
+
+    if (!category) {
+      return res.status(400).json({
+        error: {
+          categoryId: "Category not found",
+        },
+      });
+    }
+
+    const group = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("group.id = :id", { id: groupId })
+      .getOne();
+
+    if (!group) {
+      return res.status(400).json({
+        error: {
+          groupId: "Group not found",
+        },
+      });
+    }
+
+    const product = new Product();
+    product.name = name;
+    product.description = description;
+    product.isActive = isActive;
+    product.category = category;
+    product.group = group;
+
+    await AppDataSource.manager.save(product);
+
+    res.status(201).json(product);
   }
-  const { name, description, isActive } = value;
-
-  const productExists = await AppDataSource.getRepository(Product)
-    .createQueryBuilder("product")
-    .where("UPPER(product.name) = UPPER(:name)", { name })
-    .getOne();
-
-  if (productExists) {
-    return res.status(400).json({
-      error: {
-        name: "Product already exists",
-      },
-    });
-  }
-
-  const product = new Product();
-  product.name = name;
-  product.description = description;
-  product.isActive = isActive;
-
-  await AppDataSource.manager.save(product);
-
-  res.status(201).json(product);
-});
+);
 
 router.get("/", async (req: Request, res: Response) => {
   /*
@@ -82,138 +128,132 @@ router.get("/active", async (req: Request, res: Response) => {
   res.status(200).json(products);
 });
 
-router.get("/:id", async (req: Request, res: Response) => {
-  /*
+router.get(
+  "/:id",
+  validator(productParamsSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Product']
     #swagger.description = 'Get a product by id'
   */
+    const { id } = req.params;
 
-  const { error: errorParams, value: valueParams } =
-    productParamsSchema.validate(req.params);
+    const product = await AppDataSource.getRepository(Product)
+      .createQueryBuilder("product")
+      .where("product.id = :id", { id })
+      .getOne();
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    res.status(200).json(product);
   }
+);
 
-  const { id } = valueParams;
-
-  const product = await AppDataSource.getRepository(Product)
-    .createQueryBuilder("product")
-    .where("product.id = :id", { id })
-    .getOne();
-
-  res.status(200).json(product);
-});
-
-router.put("/:id", async (req: Request, res: Response) => {
-  /*
+router.put(
+  "/:id",
+  validator(productParamsSchema, "params"),
+  validator(productSchema, "body"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Product']
     #swagger.description = 'Update a product by id'
   */
-  const { error: errorParams, value: valueParams } =
-    productParamsSchema.validate(req.params);
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
-  }
+    const product = await AppDataSource.getRepository(Product)
+      .createQueryBuilder("product")
+      .where("product.id = :id", { id })
+      .getOne();
 
-  const { id } = valueParams;
+    if (!product)
+      return res.status(400).json({
+        error: {
+          id: "Product not found",
+        },
+      });
 
-  const product = await AppDataSource.getRepository(Product)
-    .createQueryBuilder("product")
-    .where("product.id = :id", { id })
-    .getOne();
+    const { name, description, isActive } = req.body;
 
-  if (!product)
-    return res.status(400).json({
-      error: {
-        id: "Product not found",
-      },
-    });
+    const productExists = await AppDataSource.getRepository(Product)
+      .createQueryBuilder("product")
+      .where("UPPER(product.name) = UPPER(:name)", { name })
+      .andWhere("product.id != :id", { id: product.id })
+      .getOne();
 
-  const { error, value } = productSchema.validate(req.body);
-  if (error) {
-    const { path, message } = error.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
-  }
-
-  const { name, description, isActive } = value;
-
-  const productExists = await AppDataSource.getRepository(Product)
-    .createQueryBuilder("product")
-    .where("UPPER(product.name) = UPPER(:name)", { name })
-    .andWhere("product.id != :id", { id: product.id })
-    .getOne();
-
-  if (productExists) {
-    return res.status(400).json({
-      error: {
-        name: "Product already exists",
-      },
-    });
-  }
-
-  await AppDataSource.manager.update(
-    Product,
-    { id: product.id },
-    {
-      name,
-      description,
-      isActive,
+    if (productExists) {
+      return res.status(400).json({
+        error: {
+          name: "Product already exists",
+        },
+      });
     }
-  );
 
-  res.status(200).json(product);
-});
+    const category = await AppDataSource.getRepository(Categories)
+      .createQueryBuilder("category")
+      .where("category.id = :id", { id: product.category.id })
+      .getOne();
 
-router.delete("/:id", async (req: Request, res: Response) => {
-  /*
+    if (!category) {
+      return res.status(400).json({
+        error: {
+          categoryId: "Category not found",
+        },
+      });
+    }
+
+    const group = await AppDataSource.getRepository(Group)
+      .createQueryBuilder("group")
+      .where("group.id = :id", { id: product.group.id })
+      .getOne();
+
+    if (!group) {
+      return res.status(400).json({
+        error: {
+          groupId: "Group not found",
+        },
+      });
+    }
+
+    await AppDataSource.manager.update(
+      Product,
+      { id: product.id },
+      {
+        name,
+        description,
+        isActive,
+        category,
+        group,
+      }
+    );
+
+    res.status(200).json(product);
+  }
+);
+
+router.delete(
+  "/:id",
+  validator(productParamsSchema, "params"),
+  async (req: Request, res: Response) => {
+    /*
     #swagger.tags = ['Product']
     #swagger.description = 'Delete a product by id'
   */
-  const { error: errorParams, value: valueParams } =
-    productParamsSchema.validate(req.params);
+    const { id } = req.params;
 
-  if (errorParams) {
-    const { path, message } = errorParams.details[0];
-    return res.status(400).json({
-      error: {
-        [path.toString()]: message,
-      },
-    });
+    const product = await AppDataSource.getRepository(Product)
+      .createQueryBuilder("product")
+      .where("product.id = :id", { id })
+      .getOne();
+
+    if (!product)
+      return res.status(400).json({
+        error: {
+          id: "Product not found",
+        },
+      });
+
+    await AppDataSource.manager.delete(Product, { id: product.id });
+
+    res.status(204).send();
   }
-
-  const { id } = valueParams;
-
-  const product = await AppDataSource.getRepository(Product)
-    .createQueryBuilder("product")
-    .where("product.id = :id", { id })
-    .getOne();
-
-  if (!product)
-    return res.status(400).json({
-      error: {
-        id: "Product not found",
-      },
-    });
-
-  await AppDataSource.manager.delete(Product, { id: product.id });
-
-  res.status(204).send();
-});
+);
 
 export default router;
