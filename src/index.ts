@@ -1,31 +1,34 @@
-import "reflect-metadata";
-import express, { Express, Request, Response } from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
 import dotenv from "dotenv";
+import express, { Express, Request, Response } from "express";
+import "reflect-metadata";
+import swaggerUi from "swagger-ui-express";
+import swaggerFile from "../swagger.json";
 import { AppDataSource } from "./database/data-source";
-import routeUser from "./routes/user";
-import routeProduct from "./routes/product";
-import routeGroup from "./routes/group";
-import routeCategory from "./routes/categories";
 import routeBatch from "./routes/batch";
+import routeCategory from "./routes/category";
 import routeDeposit from "./routes/deposit";
+import routeGroup from "./routes/group";
 import routeMovement from "./routes/movement";
 import routeMovementItem from "./routes/movement_item";
+import routeProduct from "./routes/product";
 import routeStock from "./routes/stock";
-import swaggerUi from "swagger-ui-express";
-import bodyParser from "body-parser";
-import swaggerFile from "../swagger.json";
-import cors from 'cors';
+import routeUser from "./routes/user";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-const allowedOrigins = process.env.FRONTEND_URLS?.split(',').map(origin => origin) || [];
+const allowedOrigins =
+  process.env.FRONTEND_URLS?.split(",").map((origin) => origin) || [];
 
-app.use(cors({
-  origin: allowedOrigins, 
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
 
 app.use(express.json());
 
@@ -46,11 +49,11 @@ app.use("/category", routeCategory);
 
 AppDataSource.initialize()
   .then(() => {
-    app.use(bodyParser.json())
-    app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+    app.use(bodyParser.json());
+    app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
     app.listen(port, () => {
       console.log(`[server]: Server is running at http://localhost:${port}`);
     });
   })
-  .catch((error) => console.log(error))
+  .catch((error) => console.log(error));

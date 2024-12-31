@@ -1,208 +1,253 @@
-import swaggerAutogen from 'swagger-autogen';
 import dotenv from "dotenv";
+import swaggerAutogen from "swagger-autogen";
 
 dotenv.config();
 
 const doc = {
   info: {
-    swagger: '2.0',
-    openapi: '3.1.0',
-    title: 'Inventary API',
-    description: 'Description of the inventary API'
+    swagger: "2.0",
+    openapi: "3.1.0",
+    title: "Inventary API",
+    description: "Description of the inventary API",
   },
-  host: 'localhost:' + process.env.PORT?.trim(),
+  host: "localhost:" + process.env.PORT?.trim(),
   servers: [
     {
-      url: 'http://localhost:' + process.env.PORT?.trim(),
-      description: 'Local server'
+      url: "http://localhost:" + process.env.PORT?.trim(),
+      description: "Local server",
     },
     {
-      url: 'https://localhost:' + process.env.PORT?.trim(),
-      description: 'Local server with HTTPS'
-    }
+      url: "https://localhost:" + process.env.PORT?.trim(),
+      description: "Local server with HTTPS",
+    },
   ],
-  schemes: ['http', 'https'],
-  consumes: ['application/json'],
-  produces: ['application/json'],
+  schemes: ["http", "https"],
+  consumes: ["application/json"],
+  produces: ["application/json"],
   tags: [
-    { name: 'Batch', description: 'Batch endpoints' },
-    { name: 'Categories', description: 'Categories endpoints' },
-    { name: 'Deposit', description: 'Deposit endpoints' },
-    { name: 'Group', description: 'Group endpoints' },
-    { name: 'Movement', description: 'Movement endpoints' },
-    { name: 'MovementItem', description: 'MovementItem endpoints' },
-    { name: 'Product', description: 'Product endpoints' },
-    { name: 'Stock', description: 'Stock endpoints' },
-    { name: 'User', description: 'User endpoints' }
+    { name: "Batch", description: "Batch endpoints" },
+    { name: "Category", description: "Category endpoints" },
+    { name: "Deposit", description: "Deposit endpoints" },
+    { name: "Group", description: "Group endpoints" },
+    { name: "Movement", description: "Movement endpoints" },
+    { name: "MovementItem", description: "MovementItem endpoints" },
+    { name: "Product", description: "Product endpoints" },
+    { name: "Stock", description: "Stock endpoints" },
+    { name: "User", description: "User endpoints" },
   ],
   definitions: {
     Batch: {
-      type: 'object',
+      type: "object",
       properties: {
-        productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
-        quantity: { type: 'number', example: 100 },
-        expirationDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' }
+        productId: {
+          type: "string",
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        },
+        quantity: { type: "number", example: 100 },
+        expirationDate: {
+          type: "string",
+          format: "date-time",
+          example: "2023-01-01T00:00:00Z",
+        },
       },
-      required: ['productId', 'quantity', 'expirationDate']
+      required: ["productId", "quantity", "expirationDate"],
     },
-    Categories: {
-      type: 'object',
+    Category: {
+      type: "object",
       properties: {
-        description: { type: 'string', example: 'Laticínios' },
-        isActive: { type: 'boolean', example: true }
+        description: { type: "string", example: "Laticínios" },
+        isActive: { type: "boolean", example: true },
       },
-      required: ['description', 'isActive']
+      required: ["description", "isActive"],
     },
     Deposit: {
-      type: 'object',
+      type: "object",
       properties: {
-        productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
-        quantity: { type: 'number', example: 100 }
+        productId: {
+          type: "string",
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        },
+        quantity: { type: "number", example: 100 },
       },
-      required: ['productId', 'quantity']
+      required: ["productId", "quantity"],
     },
     Group: {
-      type: 'object',
+      type: "object",
       properties: {
-        description: { type: 'string', example: 'Compra de Natal' }
+        description: { type: "string", example: "Compra de Natal" },
       },
-      required: ['description']
+      required: ["description"],
     },
     Movement: {
-      type: 'object',
+      type: "object",
       properties: {
-        movementType: { type: 'string', example: 'E' },
-        movementDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-        movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+        movementType: { type: "string", example: "E" },
+        movementDate: {
+          type: "string",
+          format: "date-time",
+          example: "2023-01-01T00:00:00Z",
+        },
+        movementId: {
+          type: "string",
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        },
       },
-      required: ['movementType', 'movementDate', 'movementId']
+      required: ["movementType", "movementDate", "movementId"],
     },
     MovementItem: {
-      type: 'object',
+      type: "object",
       properties: {
-        details: { type: 'string', example: 'Comprar sabor x' },
-        price: { type: 'number', example: 100 },
-        quantity: { type: 'number', example: 100 },
-        movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+        details: { type: "string", example: "Comprar sabor x" },
+        price: { type: "number", example: 100 },
+        quantity: { type: "number", example: 100 },
+        movementId: {
+          type: "string",
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        },
       },
-      required: ['details', 'price', 'quantity', 'movementId']
+      required: ["details", "price", "quantity", "movementId"],
     },
     Product: {
-      type: 'object',
+      type: "object",
       properties: {
-        name: { type: 'string', example: 'Product Name' },
-        description: { type: 'string', example: 'Product Description' },
-        isActive: { type: 'boolean', example: true }
+        name: { type: "string", example: "Product Name" },
+        description: { type: "string", example: "Product Description" },
+        isActive: { type: "boolean", example: true },
       },
-      required: ['name', 'description', 'isActive']
+      required: ["name", "description", "isActive"],
     },
     Stock: {
-      type: 'object',
+      type: "object",
       properties: {
-        productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
-        quantity: { type: 'number', example: 100 }
+        productId: {
+          type: "string",
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        },
+        quantity: { type: "number", example: 100 },
       },
-      required: ['productId', 'quantity']
+      required: ["productId", "quantity"],
     },
     User: {
-      type: 'object',
+      type: "object",
       properties: {
-        firstName: { type: 'string', example: 'John' },
-        lastName: { type: 'string', example: 'Doe' },
-        email: { type: 'string', example: 'john.doe@example.com' },
-        password: { type: 'string', example: 'password123' }
+        firstName: { type: "string", example: "John" },
+        lastName: { type: "string", example: "Doe" },
+        email: { type: "string", example: "john.doe@example.com" },
+        password: { type: "string", example: "password123" },
       },
-      required: ['firstName', 'lastName', 'email', 'password']
-    }
+      required: ["firstName", "lastName", "email", "password"],
+    },
   },
   components: {
     schemas: {
       Batch: {
-        type: 'object',
+        type: "object",
         properties: {
-          productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
-          quantity: { type: 'number', example: 100 },
-          expirationDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' }
+          productId: {
+            type: "string",
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          },
+          quantity: { type: "number", example: 100 },
+          expirationDate: {
+            type: "string",
+            format: "date-time",
+            example: "2023-01-01T00:00:00Z",
+          },
         },
-        required: ['productId', 'quantity', 'expirationDate']
+        required: ["productId", "quantity", "expirationDate"],
       },
-      Categories: {
-        type: 'object',
+      Category: {
+        type: "object",
         properties: {
-          description: { type: 'string', example: 'Laticínios' },
-          isActive: { type: 'boolean', example: true }
+          description: { type: "string", example: "Laticínios" },
+          isActive: { type: "boolean", example: true },
         },
-        required: ['description', 'isActive']
+        required: ["description", "isActive"],
       },
       Deposit: {
-        type: 'object',
+        type: "object",
         properties: {
-          productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
-          quantity: { type: 'number', example: 100 }
+          productId: {
+            type: "string",
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          },
+          quantity: { type: "number", example: 100 },
         },
-        required: ['productId', 'quantity']
+        required: ["productId", "quantity"],
       },
       Group: {
-        type: 'object',
+        type: "object",
         properties: {
-          description: { type: 'string', example: 'Compra de Natal' }
+          description: { type: "string", example: "Compra de Natal" },
         },
-        required: ['description']
+        required: ["description"],
       },
       Movement: {
-        type: 'object',
+        type: "object",
         properties: {
-          movementType: { type: 'string', example: 'E' },
-          movementDate: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-          movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+          movementType: { type: "string", example: "E" },
+          movementDate: {
+            type: "string",
+            format: "date-time",
+            example: "2023-01-01T00:00:00Z",
+          },
+          movementId: {
+            type: "string",
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          },
         },
-        required: ['movementType', 'movementDate', 'movementId']
+        required: ["movementType", "movementDate", "movementId"],
       },
       MovementItem: {
-        type: 'object',
+        type: "object",
         properties: {
-          details: { type: 'string', example: 'Comprar sabor x' },
-          price: { type: 'number', example: 100 },
-          quantity: { type: 'number', example: 100 },
-          movementId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+          details: { type: "string", example: "Comprar sabor x" },
+          price: { type: "number", example: 100 },
+          quantity: { type: "number", example: 100 },
+          movementId: {
+            type: "string",
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          },
         },
-        required: ['details', 'price', 'quantity', 'movementId']
+        required: ["details", "price", "quantity", "movementId"],
       },
       Product: {
-        type: 'object',
+        type: "object",
         properties: {
-          name: { type: 'string', example: 'Product Name' },
-          description: { type: 'string', example: 'Product Description' },
-          isActive: { type: 'boolean', example: true }
+          name: { type: "string", example: "Product Name" },
+          description: { type: "string", example: "Product Description" },
+          isActive: { type: "boolean", example: true },
         },
-        required: ['name', 'description', 'isActive']
+        required: ["name", "description", "isActive"],
       },
       Stock: {
-        type: 'object',
+        type: "object",
         properties: {
-          productId: { type: 'string', example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
-          quantity: { type: 'number', example: 100 }
+          productId: {
+            type: "string",
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          },
+          quantity: { type: "number", example: 100 },
         },
-        required: ['productId', 'quantity']
+        required: ["productId", "quantity"],
       },
       User: {
-        type: 'object',
+        type: "object",
         properties: {
-          firstName: { type: 'string', example: 'John' },
-          lastName: { type: 'string', example: 'Doe' },
-          email: { type: 'string', example: 'john.doe@example.com' },
-          password: { type: 'string', example: 'password123' }
+          firstName: { type: "string", example: "John" },
+          lastName: { type: "string", example: "Doe" },
+          email: { type: "string", example: "john.doe@example.com" },
+          password: { type: "string", example: "password123" },
         },
-        required: ['firstName', 'lastName', 'email', 'password']
-      }
-    }
-  }
+        required: ["firstName", "lastName", "email", "password"],
+      },
+    },
+  },
 };
 
-const outputFile = './swagger.json';
-const routes = ['./src/index.ts'];
+const outputFile = "./swagger.json";
+const routes = ["./src/index.ts"];
 
-swaggerAutogen({ openapi: '3.1.0' })(outputFile, routes, doc).then(() => {
-  console.log('Swagger file generated');
+swaggerAutogen({ openapi: "3.1.0" })(outputFile, routes, doc).then(() => {
+  console.log("Swagger file generated");
 });
-

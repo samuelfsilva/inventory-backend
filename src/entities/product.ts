@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Batch } from "./batch";
-import { Categories } from "./categories";
+import { Category } from "./category";
 import { Group } from "./group";
 import { MovementItem } from "./movement_item";
 
@@ -16,12 +16,12 @@ export class Product {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => Categories, (categories) => categories.products)
-  @JoinColumn({ name: "category_id" })
-  category: Categories;
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: "categoryId" })
+  category: Category;
 
   @ManyToOne(() => Group, (group) => group.product)
-  @JoinColumn({ name: "group_id" })
+  @JoinColumn({ name: "groupId" })
   group: Group;
 
   @OneToMany(() => Batch, (batch) => batch.product)

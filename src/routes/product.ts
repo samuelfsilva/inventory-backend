@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from "express";
 import Joi from "joi";
 import { AppDataSource } from "../database/data-source";
-import { Categories } from "../entities/categories";
+import { Category } from "../entities/category";
 import { Group } from "../entities/group";
 import { Product } from "../entities/product";
 import validator from "../middleware/validator";
@@ -62,7 +62,7 @@ router.post(
       });
     }
 
-    const category = await AppDataSource.getRepository(Categories)
+    const category = await AppDataSource.getRepository(Category)
       .createQueryBuilder("category")
       .where("category.id = :id", { id: categoryId })
       .getOne();
@@ -186,7 +186,7 @@ router.put(
       });
     }
 
-    const category = await AppDataSource.getRepository(Categories)
+    const category = await AppDataSource.getRepository(Category)
       .createQueryBuilder("category")
       .where("category.id = :id", { id: product.category.id })
       .getOne();
