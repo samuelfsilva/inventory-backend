@@ -106,6 +106,18 @@ router.get("/active", async (req: Request, res: Response) => {
 
   const products = await AppDataSource.getRepository(Product)
     .createQueryBuilder("product")
+    .leftJoinAndSelect("product.category", "category")
+    .leftJoinAndSelect("product.group", "group")
+    .select([
+      "product.id",
+      "product.name",
+      "product.description",
+      "product.isActive",
+      "category.id",
+      "category.description",
+      "group.id",
+      "group.description",
+    ])
     .where("product.isActive = :isActive", { isActive: true })
     .getMany();
 
