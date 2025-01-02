@@ -79,6 +79,19 @@ router.get("/", async (req: Request, res: Response) => {
   res.status(200).json(categories);
 });
 
+router.get("/active", async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Category']
+    #swagger.description = 'Get all active categories'
+  */
+  const categories = await AppDataSource.getRepository(Category)
+    .createQueryBuilder("category")
+    .where("category.isActive = true")
+    .getMany();
+
+  res.status(200).json(categories);
+});
+
 router.get(
   "/:id",
   validator(paramsCategorySchema, "params"),
