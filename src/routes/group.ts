@@ -55,19 +55,6 @@ router.get("/", async (req: Request, res: Response) => {
   res.status(200).json(groups);
 });
 
-router.get("/active", async (req: Request, res: Response) => {
-  /*
-    #swagger.tags = ['Group']
-    #swagger.description = 'Get all active groups'
-  */
-  const groups = await AppDataSource.getRepository(Group)
-    .createQueryBuilder("group")
-    .where("group.isActive = true")
-    .getMany();
-
-  res.status(200).json(groups);
-});
-
 router.get(
   "/:id/products",
   validator(paramsGroupSchema, "params"),
