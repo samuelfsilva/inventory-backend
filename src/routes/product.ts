@@ -136,6 +136,18 @@ router.get(
 
     const product = await AppDataSource.getRepository(Product)
       .createQueryBuilder("product")
+      .leftJoinAndSelect("product.category", "category")
+      .leftJoinAndSelect("product.group", "group")
+      .select([
+        "product.id",
+        "product.name",
+        "product.description",
+        "product.isActive",
+        "category.id",
+        "category.description",
+        "group.id",
+        "group.description",
+      ])
       .where("product.id = :id", { id })
       .getOne();
 
@@ -156,6 +168,18 @@ router.put(
 
     const product = await AppDataSource.getRepository(Product)
       .createQueryBuilder("product")
+      .leftJoinAndSelect("product.category", "category")
+      .leftJoinAndSelect("product.group", "group")
+      .select([
+        "product.id",
+        "product.name",
+        "product.description",
+        "product.isActive",
+        "category.id",
+        "category.description",
+        "group.id",
+        "group.description",
+      ])
       .where("product.id = :id", { id })
       .getOne();
 
@@ -166,7 +190,7 @@ router.put(
         },
       });
 
-    const { name, description, isActive } = req.body;
+    const { name, description, isActive, categoryId, groupId } = req.body;
 
     const productExists = await AppDataSource.getRepository(Product)
       .createQueryBuilder("product")
@@ -184,7 +208,7 @@ router.put(
 
     const category = await AppDataSource.getRepository(Category)
       .createQueryBuilder("category")
-      .where("category.id = :id", { id: product.category.id })
+      .where("category.id = :id", { id: categoryId })
       .getOne();
 
     if (!category) {
@@ -197,7 +221,7 @@ router.put(
 
     const group = await AppDataSource.getRepository(Group)
       .createQueryBuilder("group")
-      .where("group.id = :id", { id: product.group.id })
+      .where("group.id = :id", { id: groupId })
       .getOne();
 
     if (!group) {

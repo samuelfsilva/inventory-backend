@@ -40,7 +40,7 @@ router.post(
     }
   */
 
-    const { description, isActive } = req.body;
+    const { description } = req.body;
 
     const categoryExists = await AppDataSource.getRepository(Category)
       .createQueryBuilder("category")
@@ -59,7 +59,7 @@ router.post(
 
     const category = new Category();
     category.description = description;
-    category.isActive = isActive;
+    category.isActive = true;
 
     await AppDataSource.manager.save(category);
 
