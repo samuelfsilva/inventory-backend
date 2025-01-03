@@ -98,7 +98,7 @@ router.put(
         },
       });
 
-    const { name, description } = req.body;
+    const { name, description, isActive } = req.body;
 
     const depositExists = await AppDataSource.getRepository(Deposit)
       .createQueryBuilder("deposit")
@@ -120,6 +120,7 @@ router.put(
       {
         name,
         description,
+        isActive,
       }
     );
 

@@ -2,7 +2,7 @@ import Joi from "joi";
 
 const updateProductSchema = Joi.object({
   name: Joi.string().trim().min(1).max(250).required(),
-  description: Joi.string().trim().min(1).max(250).optional(),
+  description: Joi.string().trim().max(250).allow("").optional(),
   isActive: Joi.boolean().required(),
   categoryId: Joi.string()
     .trim()
