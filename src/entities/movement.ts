@@ -1,10 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { User } from './user';
-import { MovementItem } from './movement_item';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { MovementItem } from "./movement_item";
+import { User } from "./user";
 
 @Entity()
 export class Movement {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => User, (user) => user.movement)
@@ -13,9 +19,9 @@ export class Movement {
   @OneToMany(() => MovementItem, (movementItem) => movementItem.movement)
   items: MovementItem[];
 
-  @Column({ type: 'datetime', nullable: false })
+  @Column({ type: "datetime", nullable: false })
   movementDate: Date;
 
-  @Column({ type: 'boolean', nullable: false })
-  isActive: boolean;
+  @Column({ type: "bit", nullable: false })
+  status: boolean;
 }

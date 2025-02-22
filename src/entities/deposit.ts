@@ -12,8 +12,8 @@ export class Deposit {
   @Column({ type: "varchar", nullable: false })
   description: string;
 
-  @Column({ type: "boolean", nullable: false })
-  isActive: boolean;
+  @Column({ type: "bit", nullable: false })
+  status: boolean;
 
   @OneToMany(() => Stock, (stock) => stock.deposit)
   stock: Stock[];

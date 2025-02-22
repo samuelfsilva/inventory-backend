@@ -10,14 +10,14 @@ const doc = {
     title: "Inventary API",
     description: "Description of the inventary API",
   },
-  host: "localhost:" + process.env.PORT?.trim(),
+  host: "localhost:" + process.env.APP_PORT?.trim(),
   servers: [
     {
-      url: "http://localhost:" + process.env.PORT?.trim(),
+      url: "http://localhost:" + process.env.APP_PORT?.trim(),
       description: "Local server",
     },
     {
-      url: "https://localhost:" + process.env.PORT?.trim(),
+      url: "https://localhost:" + process.env.APP_PORT?.trim(),
       description: "Local server with HTTPS",
     },
   ],
@@ -56,9 +56,9 @@ const doc = {
       type: "object",
       properties: {
         description: { type: "string", example: "Laticínios" },
-        isActive: { type: "boolean", example: true },
+        status: { type: "boolean", example: true },
       },
-      required: ["description", "isActive"],
+      required: ["description", "status"],
     },
     Deposit: {
       type: "object",
@@ -112,9 +112,9 @@ const doc = {
       properties: {
         name: { type: "string", example: "Product Name" },
         description: { type: "string", example: "Product Description" },
-        isActive: { type: "boolean", example: true },
+        status: { type: "boolean", example: true },
       },
-      required: ["name", "description", "isActive"],
+      required: ["name", "description", "status"],
     },
     Stock: {
       type: "object",
@@ -160,9 +160,9 @@ const doc = {
         type: "object",
         properties: {
           description: { type: "string", example: "Laticínios" },
-          isActive: { type: "boolean", example: true },
+          status: { type: "boolean", example: true },
         },
-        required: ["description", "isActive"],
+        required: ["description", "status"],
       },
       Deposit: {
         type: "object",
@@ -216,9 +216,9 @@ const doc = {
         properties: {
           name: { type: "string", example: "Product Name" },
           description: { type: "string", example: "Product Description" },
-          isActive: { type: "boolean", example: true },
+          status: { type: "boolean", example: true },
         },
-        required: ["name", "description", "isActive"],
+        required: ["name", "description", "status"],
       },
       Stock: {
         type: "object",

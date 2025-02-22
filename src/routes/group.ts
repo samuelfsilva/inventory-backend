@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Group } from "../entities/group";
 import validator from "../middleware/validator";
 import createGroupSchema from "../schemas/group/createGroupSchema";
@@ -8,6 +7,7 @@ import {
   paramsGroupSchema,
 } from "../schemas/group/paramsGroupSchema";
 import updateGroupSchema from "../schemas/group/updateGroupSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 

@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Batch } from "../entities/batch";
 import { Deposit } from "../entities/deposit";
 import { Stock } from "../entities/stock";
@@ -7,6 +6,7 @@ import validator from "../middleware/validator";
 import createStockSchema from "../schemas/stock/createStockSchema";
 import { paramsStockSchema } from "../schemas/stock/paramsStockSchema";
 import updateStockSchema from "../schemas/stock/updateStockSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 
@@ -91,7 +91,7 @@ router.get("/active", async (req: Request, res: Response) => {
 
   const stocks = await AppDataSource.getRepository(Stock)
     .createQueryBuilder("stock")
-    .where("stock.isActive = :isActive", { isActive: true })
+    .where("stock.status = :status", { status: true })
     .getMany();
 
   res.status(200).json(stocks);

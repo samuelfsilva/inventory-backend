@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { AppDataSource } from "../database/data-source";
 import { Batch } from "../entities/batch";
 import { Product } from "../entities/product";
 import { Stock } from "../entities/stock";
+import { AppDataSource } from "../server";
 
 describe("Stock Entity", () => {
   afterEach(async () => {
@@ -14,7 +14,7 @@ describe("Stock Entity", () => {
     const product = new Product();
     product.name = "Test Product";
     product.description = "Test Product";
-    product.isActive = true;
+    product.status = true;
 
     const batch = new Batch();
     batch.description = "Test Batch";
@@ -39,7 +39,7 @@ describe("Stock Entity", () => {
     const product = new Product();
     product.name = "Test Product";
     product.description = "Test Product";
-    product.isActive = true;
+    product.status = true;
 
     const batch = new Batch();
     batch.description = "Test Batch";
@@ -74,7 +74,7 @@ describe("Stock Entity", () => {
     const product = new Product();
     product.name = "Test Product";
     product.description = "Test Product";
-    product.isActive = true;
+    product.status = true;
 
     const batch = new Batch();
     batch.description = "Test Batch";

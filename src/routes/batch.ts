@@ -1,11 +1,11 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Batch } from "../entities/batch";
 import { Product } from "../entities/product";
 import validator from "../middleware/validator";
 import createBatchSchema from "../schemas/batch/createBatchSchema";
 import paramsBatchSchema from "../schemas/batch/paramsBatchSchema";
 import updateBatchSchema from "../schemas/batch/updateBatchSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 

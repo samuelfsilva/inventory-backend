@@ -1,8 +1,8 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    setupFiles: ['./src/database/setup-test.ts'],
+    setupFiles: ["./src/database/setup-test.ts"],
     poolOptions: {
       threads: {
         singleThread: true,
@@ -14,7 +14,7 @@ export default defineConfig({
         singleFork: true,
         maxForks: 1,
         minForks: 1,
-      }
-    }
-  }
-})
+      },
+    },
+  },
+});

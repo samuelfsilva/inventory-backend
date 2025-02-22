@@ -1,10 +1,10 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Deposit } from "../entities/deposit";
 import validator from "../middleware/validator";
 import createDepositSchema from "../schemas/deposit/createDepositSchema";
 import { paramsDepositSchema } from "../schemas/deposit/paramsDepositSchema";
 import updateDepositSchema from "../schemas/deposit/updateDepositSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 
@@ -34,7 +34,7 @@ router.post(
     const deposit = new Deposit();
     deposit.name = name;
     deposit.description = description;
-    deposit.isActive = true;
+    deposit.status = true;
 
     await AppDataSource.manager.save(deposit);
 
@@ -98,7 +98,7 @@ router.put(
         },
       });
 
-    const { name, description, isActive } = req.body;
+    const { name, description, status } = req.body;
 
     const depositExists = await AppDataSource.getRepository(Deposit)
       .createQueryBuilder("deposit")
@@ -120,7 +120,7 @@ router.put(
       {
         name,
         description,
-        isActive,
+        status,
       }
     );
 

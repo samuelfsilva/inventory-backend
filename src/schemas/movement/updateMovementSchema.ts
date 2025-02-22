@@ -9,7 +9,7 @@ const updateMovementSchema = Joi.object({
     })
     .required(),
   movementDate: Joi.date().max("now").required(),
-  isActive: Joi.boolean().required(),
+  status: Joi.boolean().required(),
 });
 
 export default updateMovementSchema;

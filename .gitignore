@@ -26,4 +26,4 @@ dist-ssr
 *.env
 database.sqlite
 database-test.sqlite
-swagger.json
+src/swagger.json

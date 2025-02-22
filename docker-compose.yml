@@ -1,0 +1,55 @@
+version: "3.9"
+
+networks:
+  app_network:
+    driver: bridge
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile-app
+    container_name: app
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      APP_PORT: ${APP_PORT}
+      FRONTEND_URLS: ${FRONTEND_URLS}
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  sqlserver:
+    build:
+      context: .
+      dockerfile: dockerfile-sqlserver
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: ${DB_PASSWORD}
+      ACCEPT_EULA: "Y"
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+    networks:
+      - app_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $$SA_PASSWORD -Q 'SELECT 1' || exit 1",
+        ]
+      interval: 10s # Intervalo entre as verificações
+      timeout: 5s # Tempo limite para cada verificação
+      retries: 5 # Número de tentativas
+      start_period: 30s # Tempo para o SQL Server inicializar
+
+volumes:
+  sqlserverdata:

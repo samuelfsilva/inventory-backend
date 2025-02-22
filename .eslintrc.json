@@ -1,0 +1,18 @@
+{
+  "parser": "@typescript-eslint/parser", // Usa o parser do TypeScript
+  "plugins": ["@typescript-eslint"], // Habilita o plugin do TypeScript
+  "extends": [
+    "eslint:recommended", // Regras recomendadas do ESLint
+    "plugin:@typescript-eslint/recommended" // Regras recomendadas do TypeScript
+  ],
+  "rules": {
+    // Exemplos de regras personalizadas
+    "@typescript-eslint/no-unused-vars": "warn", // Avisa sobre variáveis não usadas
+    "@typescript-eslint/no-explicit-any": "warn", // Avisa sobre o uso de `any`
+    "semi": ["error", "always"] // Exige ponto e vírgula no final das linhas
+  },
+  "env": {
+    "node": true, // Habilita variáveis globais do Node.js
+    "jest": true // Habilita variáveis globais do Jest (para testes)
+  }
+}

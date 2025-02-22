@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Movement } from "../entities/movement";
 import { User } from "../entities/user";
 import validator from "../middleware/validator";
@@ -10,6 +9,7 @@ import {
   paramsMovementSchema,
 } from "../schemas/movement/paramsMovementSchema";
 import updateMovementSchema from "../schemas/movement/updateMovementSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 
@@ -36,7 +36,7 @@ router.post(
       });
 
     const movement = new Movement();
-    movement.isActive = true;
+    movement.status = true;
     movement.movementDate = movementDate;
     movement.user = userExists;
 
@@ -66,7 +66,7 @@ router.get("/active", async (req: Request, res: Response) => {
   */
   const movements = await AppDataSource.getRepository(Movement)
     .createQueryBuilder("movement")
-    .where("movement.isActive = :isActive", { isActive: 1 })
+    .where("movement.status = :status", { status: 1 })
     .getMany();
 
   res.status(200).json(movements);
@@ -167,7 +167,7 @@ router.put(
   */
     const { id } = req.params;
 
-    const { isActive, movementDate, userId } = req.body;
+    const { status, movementDate, userId } = req.body;
 
     const movement = await AppDataSource.getRepository(Movement)
       .createQueryBuilder("movement")
@@ -199,7 +199,7 @@ router.put(
       Movement,
       { id: movement.id },
       {
-        isActive,
+        status,
         movementDate,
         user,
       }

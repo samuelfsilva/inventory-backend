@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Category } from "../entities/category";
 import { Group } from "../entities/group";
 import { Product } from "../entities/product";
@@ -7,6 +6,7 @@ import validator from "../middleware/validator";
 import createProductSchema from "../schemas/product/createProductSchema";
 import { paramsProductSchema } from "../schemas/product/paramsProductSchema";
 import updateProductSchema from "../schemas/product/updateProductSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 
@@ -63,7 +63,7 @@ router.post(
     const product = new Product();
     product.name = name;
     product.description = description;
-    product.isActive = true;
+    product.status = true;
     product.category = category;
     product.group = group;
 
@@ -87,7 +87,7 @@ router.get("/", async (req: Request, res: Response) => {
       "product.id",
       "product.name",
       "product.description",
-      "product.isActive",
+      "product.status",
       "category.id",
       "category.description",
       "group.id",
@@ -112,13 +112,13 @@ router.get("/active", async (req: Request, res: Response) => {
       "product.id",
       "product.name",
       "product.description",
-      "product.isActive",
+      "product.status",
       "category.id",
       "category.description",
       "group.id",
       "group.description",
     ])
-    .where("product.isActive = :isActive", { isActive: true })
+    .where("product.status = :status", { status: true })
     .getMany();
 
   res.status(200).json(products);
@@ -142,7 +142,7 @@ router.get(
         "product.id",
         "product.name",
         "product.description",
-        "product.isActive",
+        "product.status",
         "category.id",
         "category.description",
         "group.id",
@@ -174,7 +174,7 @@ router.put(
         "product.id",
         "product.name",
         "product.description",
-        "product.isActive",
+        "product.status",
         "category.id",
         "category.description",
         "group.id",
@@ -190,7 +190,7 @@ router.put(
         },
       });
 
-    const { name, description, isActive, categoryId, groupId } = req.body;
+    const { name, description, status, categoryId, groupId } = req.body;
 
     const productExists = await AppDataSource.getRepository(Product)
       .createQueryBuilder("product")
@@ -238,7 +238,7 @@ router.put(
       {
         name,
         description,
-        isActive,
+        status,
         category,
         group,
       }

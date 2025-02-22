@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { User } from "../entities/user";
 import validator from "../middleware/validator";
 import createUserSchema from "../schemas/user/createUserSchema";
@@ -8,6 +7,7 @@ import {
   paramsUserSchema,
 } from "../schemas/user/paramsUserSchema";
 import updateUserSchema from "../schemas/user/updateUserSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 
@@ -67,7 +67,7 @@ router.get("/active", async (req: Request, res: Response) => {
 
   const users = await AppDataSource.getRepository(User)
     .createQueryBuilder("user")
-    .where("user.isActive = :isActive", { isActive: true })
+    .where("user.status = :status", { status: true })
     .getMany();
 
   res.status(200).json(users);

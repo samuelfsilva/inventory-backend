@@ -1,15 +1,15 @@
 import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
 
-export class IsActiveColumnCategoriesTable1733305697228
+export class statusColumnCategoriesTable1733305697228
   implements MigrationInterface
 {
-  name = "IsActiveColumnCategoriesTable1733305697228";
+  name = "statusColumnCategoriesTable1733305697228";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.addColumn(
       "categories",
       new TableColumn({
-        name: "isActive",
+        name: "status",
         type: "boolean",
         isNullable: false,
       })
@@ -17,6 +17,6 @@ export class IsActiveColumnCategoriesTable1733305697228
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropColumn("categories", "isActive");
+    await queryRunner.dropColumn("categories", "status");
   }
 }

@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Movement } from "../entities/movement";
 import { MovementItem } from "../entities/movement_item";
 import { Product } from "../entities/product";
@@ -7,6 +6,7 @@ import validator from "../middleware/validator";
 import createMovementItemSchema from "../schemas/movement_item/createMovementItemSchema";
 import { paramsMovementItemSchema } from "../schemas/movement_item/paramsMovementItemSchema";
 import updateMovementItemSchema from "../schemas/movement_item/updateMovementItemSchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 

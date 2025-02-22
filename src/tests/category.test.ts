@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { AppDataSource } from "../database/data-source";
 import { Category } from "../entities/category";
+import { AppDataSource } from "../server";
 
 describe("Category Entity", () => {
   afterEach(async () => {

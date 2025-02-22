@@ -1,45 +1,45 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { Movement } from '../entities/movement';
-import { AppDataSource } from '../database/data-source';
-import { User } from '../entities/user';
+import { afterEach, describe, expect, it } from "vitest";
+import { Movement } from "../entities/movement";
+import { User } from "../entities/user";
+import { AppDataSource } from "../server";
 
-describe('Movement Entity', () => {
+describe("Movement Entity", () => {
   afterEach(async () => {
     await AppDataSource.getRepository(Movement).clear();
     await AppDataSource.getRepository(User).clear();
   });
 
-  it('should create a new movement', async () => {
+  it("should create a new movement", async () => {
     const user = new User();
-    user.email = 'test@example.com';
-    user.firstName = 'Test';
-    user.lastName = 'User';
-    user.isActive = true;
+    user.email = "test@example.com";
+    user.firstName = "Test";
+    user.lastName = "User";
+    user.status = true;
     await AppDataSource.manager.save(user);
 
     const movement = new Movement();
     movement.movementDate = new Date();
-    movement.isActive = true;
+    movement.status = true;
     movement.user = user;
 
     const saved = await AppDataSource.manager.save(movement);
 
-    expect(saved).toHaveProperty('id');
+    expect(saved).toHaveProperty("id");
     expect(saved.movementDate).toBeInstanceOf(Date);
-    expect(saved.isActive).toBe(true);
-    expect(saved.user).toHaveProperty('id');
+    expect(saved.status).toBe(true);
+    expect(saved.user).toHaveProperty("id");
   });
 
-  it('should update a movement', async () => {
+  it("should update a movement", async () => {
     const user = new User();
-    user.email = 'test@example.com';
-    user.firstName = 'Test';
-    user.lastName = 'User';
-    user.isActive = true;
+    user.email = "test@example.com";
+    user.firstName = "Test";
+    user.lastName = "User";
+    user.status = true;
     await AppDataSource.manager.save(user);
 
     const movement = new Movement();
-    movement.isActive = true;
+    movement.status = true;
     movement.movementDate = new Date();
     movement.user = user;
 
@@ -52,27 +52,26 @@ describe('Movement Entity', () => {
       { movementDate: date }
     );
 
-    const select = await AppDataSource
-      .getRepository(Movement)
+    const select = await AppDataSource.getRepository(Movement)
       .createQueryBuilder("movement")
       .where("movement.id = :id", { id: saved.id })
       .getOne();
 
     expect(select?.movementDate).toBeInstanceOf(Date);
-    expect(select?.isActive).toBe(true);
+    expect(select?.status).toBe(true);
   });
 
-  it('should delete a movement', async () => {
+  it("should delete a movement", async () => {
     const user = new User();
-    user.email = 'test@example.com';
-    user.firstName = 'Test';
-    user.lastName = 'User';
-    user.isActive = true;
+    user.email = "test@example.com";
+    user.firstName = "Test";
+    user.lastName = "User";
+    user.status = true;
     await AppDataSource.manager.save(user);
 
     const movement = new Movement();
     movement.movementDate = new Date();
-    movement.isActive = true;
+    movement.status = true;
     movement.user = user;
 
     const saved = await AppDataSource.manager.save(movement);
@@ -80,8 +79,7 @@ describe('Movement Entity', () => {
 
     await AppDataSource.manager.delete(Movement, { id: savedId });
 
-    const movementct = await AppDataSource
-      .getRepository(Movement)
+    const movementct = await AppDataSource.getRepository(Movement)
       .createQueryBuilder("movement")
       .where("movement.id = :id", { id: savedId })
       .getOne();
@@ -89,4 +87,3 @@ describe('Movement Entity', () => {
     expect(movementct).toBeNull();
   });
 });
-

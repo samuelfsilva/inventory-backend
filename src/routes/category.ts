@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { AppDataSource } from "../database/data-source";
 import { Category } from "../entities/category";
 import validator from "../middleware/validator";
 import createCategorySchema from "../schemas/category/createCategorySchema";
@@ -8,6 +7,7 @@ import {
   paramsCategorySchema,
 } from "../schemas/category/paramsCategorySchema";
 import updateCategorySchema from "../schemas/category/updateCategorySchema";
+import { AppDataSource } from "../server";
 
 const router: Router = express.Router();
 
@@ -29,7 +29,7 @@ router.post(
                 type: 'string',
                 example: 'Laticinios'
               },
-              isActive: {
+              status: {
                 type: 'boolean',
                 example: true
               }
@@ -59,7 +59,7 @@ router.post(
 
     const category = new Category();
     category.description = description;
-    category.isActive = true;
+    category.status = true;
 
     await AppDataSource.manager.save(category);
 
@@ -86,7 +86,7 @@ router.get("/active", async (req: Request, res: Response) => {
   */
   const categories = await AppDataSource.getRepository(Category)
     .createQueryBuilder("category")
-    .where("category.isActive = true")
+    .where("category.status = true")
     .getMany();
 
   res.status(200).json(categories);
@@ -193,7 +193,7 @@ router.put(
                 type: 'string',
                 example: 'Laticinios'
               },
-              isActive: {
+              status: {
                 type: 'boolean',
                 example: true
               }
@@ -217,7 +217,7 @@ router.put(
         },
       });
 
-    const { description, isActive } = req.body;
+    const { description, status } = req.body;
 
     const categoryExist = await AppDataSource.getRepository(Category)
       .createQueryBuilder("category")
@@ -240,7 +240,7 @@ router.put(
       { id: category.id },
       {
         description,
-        isActive,
+        status,
       }
     );
 
