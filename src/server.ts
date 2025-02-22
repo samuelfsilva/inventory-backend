@@ -2,8 +2,6 @@ import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 
-console.log("__dirname", __dirname);
-
 const AppDataSource = new DataSource({
   type: "mssql",
   host: process.env.DB_HOST,
