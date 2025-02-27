@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+app/src/swagger.json
 
 # Editor directories and files
 .vscode/*
@@ -24,6 +25,3 @@ dist-ssr
 *.sw?
 
 *.env
-database.sqlite
-database-test.sqlite
-src/swagger.json
