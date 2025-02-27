@@ -21,8 +21,6 @@ RUN npm install --legacy-peer-deps
 
 # Copiar o restante do código
 COPY . .
-RUN rm -f ./init-db.sql
-RUN rm -f ./startup.sh
 
 # Compilar o código
 RUN npm run build
