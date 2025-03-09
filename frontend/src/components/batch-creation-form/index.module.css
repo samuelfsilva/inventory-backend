@@ -1,0 +1,25 @@
+.form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+  height: 40px;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.buttonCreateContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.errorExpirationDate {
+  color: #d42f2f;
+  font-size: 12px !important;
+}
+
+.autocompleteField {
+  width: 300px;
+}

@@ -19,7 +19,7 @@ import swaggerFile from "./swagger.json";
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.APP_PORT || 3333;
+const port = process.env.API_PORT || 3333;
 
 const allowedOrigins =
   process.env.FRONTEND_URLS?.split(",").map((origin) => origin) || [];

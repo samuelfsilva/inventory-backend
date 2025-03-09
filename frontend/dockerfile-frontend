@@ -1,0 +1,34 @@
+# Usar a versão específica do Node.js
+FROM node:22.14.0 AS builder
+
+# Define the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json (if exists)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the Next.js app
+RUN npm run build
+
+# Final stage
+FROM node:22.14.0
+
+# Define the working directory
+WORKDIR /app
+
+# Copy only the necessary files from the builder stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# Expose the port that Next.js will run on
+EXPOSE ${DOCKER_FRONTEND_PORT}
+
+# Start the Next.js server
+CMD ["npm", "start"]

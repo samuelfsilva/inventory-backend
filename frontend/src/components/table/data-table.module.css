@@ -1,0 +1,26 @@
+.tableContainer {
+  margin-top: 10px;
+}
+
+.tableRow:nth-child(even) {
+  background-color: #f8f8ff;
+}
+
+.tableRow:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.tableAction {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.editButton {
+  background-color: #4CAF50 !important;
+  color: white !important;
+}
+
+.deleteButton {
+  background-color: #f44336 !important;
+  color: white !important;
+}

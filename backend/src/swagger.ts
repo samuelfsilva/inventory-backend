@@ -10,14 +10,14 @@ const doc = {
     title: "Inventary API",
     description: "Description of the inventary API",
   },
-  host: "localhost:" + process.env.APP_PORT?.trim(),
+  host: "localhost:" + process.env.API_PORT?.trim(),
   servers: [
     {
-      url: "http://localhost:" + process.env.APP_PORT?.trim(),
+      url: "http://localhost:" + process.env.API_PORT?.trim(),
       description: "Local server",
     },
     {
-      url: "https://localhost:" + process.env.APP_PORT?.trim(),
+      url: "https://localhost:" + process.env.API_PORT?.trim(),
       description: "Local server with HTTPS",
     },
   ],

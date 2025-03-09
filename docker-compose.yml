@@ -3,21 +3,39 @@ networks:
     driver: bridge
 
 services:
-  app:
+  frontend:
     build:
-      context: ./app
-      dockerfile: dockerfile-app
-    container_name: app
+      context: ./frontend
+      dockerfile: dockerfile-frontend
+    container_name: inventory-frontend
+    environment:
+      DOCKER_NODE_VERSION: ${DOCKER_NODE_VERSION}
+      DOCKER_FRONTEND_PORT: ${DOCKER_FRONTEND_PORT}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    ports:
+      - ${DOCKER_FRONTEND_PORT}:${DOCKER_FRONTEND_PORT}
+    networks:
+      - app_network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: dockerfile-api
+    container_name: inventory-backend
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_DATABASE}
-      APP_PORT: ${APP_PORT}
+      API_PORT: ${API_PORT}
       FRONTEND_URLS: ${FRONTEND_URLS}
+      DOCKER_NODE_VERSION: ${DOCKER_NODE_VERSION}
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - ${API_PORT}:${API_PORT}
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -26,12 +44,14 @@ services:
 
   sqlserver:
     build:
-      context: ./db
+      context: ./database
       dockerfile: dockerfile-sqlserver
     container_name: sqlserver
     environment:
       SA_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD}
       ACCEPT_EULA: "Y"
+      DB_PORT: ${DB_PORT}
     ports:
       - ${DB_PORT}:${DB_PORT}
     volumes:
@@ -42,7 +62,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "/opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $$SA_PASSWORD -Q 'SELECT 1' || exit 1",
+          "/opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $$DB_PASSWORD -Q 'SELECT 1' || exit 1",
         ]
       interval: 10s # Intervalo entre as verificações
       timeout: 5s # Tempo limite para cada verificação

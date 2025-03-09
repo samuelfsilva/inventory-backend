@@ -1,5 +1,5 @@
 # Usar a versão específica do Node.js
-FROM node:22.11.0
+FROM node:22.14.0
 
 # Definir o diretório de trabalho
 WORKDIR /app
@@ -8,14 +8,14 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar as dependências
-RUN npm_version=$(npm --version) && \
-    required_version="11.1.0" && \
-    if [ "$npm_version" != "$required_version" ]; then \
-      echo "Updating npm to version $required_version..." && \
-      npm install -g npm@$required_version; \
-    else \
-      echo "npm is already at the required version: $npm_version"; \
-    fi
+# RUN npm_version=$(npm --version) && \
+#     required_version="11.1.0" && \
+#     if [ "$npm_version" != "$required_version" ]; then \
+#       echo "Updating npm to version $required_version..." && \
+#       npm install -g npm@$required_version; \
+#     else \
+#       echo "npm is already at the required version: $npm_version"; \
+#     fi
 
 RUN npm install --legacy-peer-deps
 
@@ -26,7 +26,7 @@ COPY . .
 RUN npm run build
 
 # Expor a porta que a aplicação vai rodar
-EXPOSE 3333
+EXPOSE ${API_PORT}
 
 # Comando para iniciar a aplicação
 CMD [ "npm", "start" ]
