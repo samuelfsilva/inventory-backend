@@ -2,7 +2,7 @@ import { Category, CategoryResponse, NewCategory } from '@/types/category'
 import { UnknownResponse } from '@/types/response'
 import axios, { AxiosError } from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim()
 
 export const getCategories = async (): Promise<Category[]> => {
   const response = await axios.get(`${API_URL}/category`)

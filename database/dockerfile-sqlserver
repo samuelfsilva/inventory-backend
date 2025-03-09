@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/mssql/server:2019-latest
 
 # Defina variáveis de ambiente necessárias para o SQL Server
 # ENV SA_PASSWORD=
-# ENV ACCEPT_EULA=Y
+ENV ACCEPT_EULA=Y
 # ENV DB_PORT=${DB_PORT}
 
 # Exponha a porta padrão do SQL Server
@@ -13,7 +13,7 @@ USER root
 # mssql-tools adicionado para executar comandos SQL Server no helthcheck do docker-compose
 RUN apt-get update && \
     if ! command -v sqlcmd &> /dev/null; then \
-        apt-get install --no-install-recommends -y mssql-tools; \
+        apt-get install --no-install-recommends -y msodbcsql17 mssql-tools; \
     fi
 
 RUN apt-get update && \
