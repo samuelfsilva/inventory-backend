@@ -145,23 +145,22 @@ inventory-management/
 ## ⚙️ Environment Variables
 
 ```
-# Docker Configuration
-DOCKER_NODE_VERSION=latest
-DOCKER_FRONTEND_PORT=3000
+# Frontend
+NEXT_PUBLIC_API_URL=http://localhost:3333
 
-# Database Configuration
+# Backend
+API_PORT=3333
+FRONTEND_URLS=http://localhost:3000
+
+# Database
 DB_HOST=sqlserver
 DB_PORT=1433
 DB_USERNAME=sa
 DB_PASSWORD=YourStrongPassword
 DB_DATABASE=inventory
 
-# API Configuration
-API_PORT=8080
-FRONTEND_URLS=http://localhost:3000
-
-# Frontend Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8080
+# Docker
+DOCKER_FRONTEND_PORT=3000
 ```
 
 ## 📌 API Endpoints
