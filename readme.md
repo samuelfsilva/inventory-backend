@@ -6,7 +6,7 @@
 A modern full-stack inventory management system built with TypeScript, Express, SQL Server, and Next.js.
 
 <p align="center">
-  <img src="/api/placeholder/800/400" alt="Inventory Management System" />
+  <img src="https://cdn-icons-png.flaticon.com/512/7656/7656399.png" alt="Inventory Management System" />
 </p>
 
 ## 🚀 Features
@@ -21,6 +21,7 @@ A modern full-stack inventory management system built with TypeScript, Express, 
 ## 🛠️ Tech Stack
 
 ### Backend
+
 - **Framework**: Node.js with Express
 - **Language**: TypeScript
 - **ORM**: TypeORM
@@ -29,12 +30,14 @@ A modern full-stack inventory management system built with TypeScript, Express, 
 - **Testing**: Vitest
 
 ### Frontend
+
 - **Framework**: Next.js 15
 - **UI Library**: Material UI 6
 - **State Management**: React Hooks
 - **API Client**: Axios
 
 ### DevOps
+
 - **Containerization**: Docker & Docker Compose
 - **CI/CD**: GitHub Actions
 - **Linting**: ESLint
@@ -67,6 +70,7 @@ docker-compose up -d
 ```
 
 4. **Access the application**
+
 - Frontend: http://localhost:3000
 - API: http://localhost:8080
 - API Docs: http://localhost:8080/api-docs
@@ -111,16 +115,23 @@ npm run homologation:migrate:revert
 inventory-management/
 ├── backend/            # Express API with TypeORM
 │   ├── src/
-│   │   ├── controllers/ # Request handlers
-│   │   ├── database/    # DB connections & migrations
-│   │   ├── models/      # Data models
-│   │   ├── routes/      # API routes
-│   │   └── index.ts     # Entry point
+│   │   ├── database/      # DB connections & migrations
+│   │   ├── entities/      # TypeORM entities
+│   │   ├── middleware/    # Middleware
+│   │   ├── migration/     # TypeORM migrations
+│   │   ├── routes/        # API routes
+│   │   ├── schema/        # Joi validation schemas
+│   │   ├── test/          # Unit tests
+│   │   ├── index.ts       # Entry point
+│   │   ├── server.ts      # Express server
+│   │   ├── swagger.ts     # Swagger setup
+│   │   └── vite.config.ts # Vite configuration
 ├── database/           # SQL Server setup
 ├── frontend/           # Next.js application
 │   ├── src/
-│   │   ├── app/        # Pages
+│   │   ├── app/        # Main
 │   │   ├── components/ # UI components
+│   │   ├── pages/      # Pages
 │   │   ├── services/   # API services
 │   │   └── utils/      # Utilities
 ├── .dockerignore
@@ -155,15 +166,15 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 
 ## 📌 API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET    | /api/products | Get all products |
-| GET    | /api/products/:id | Get product by ID |
-| POST   | /api/products | Create a product |
-| PUT    | /api/products/:id | Update a product |
-| DELETE | /api/products/:id | Delete a product |
-| GET    | /api/categories | Get all categories |
-| GET    | /api/inventory | Get inventory status |
+| Method | Endpoint          | Description          |
+| ------ | ----------------- | -------------------- |
+| GET    | /api/products     | Get all products     |
+| GET    | /api/products/:id | Get product by ID    |
+| POST   | /api/products     | Create a product     |
+| PUT    | /api/products/:id | Update a product     |
+| DELETE | /api/products/:id | Delete a product     |
+| GET    | /api/categories   | Get all categories   |
+| GET    | /api/inventory    | Get inventory status |
 
 Full API documentation is available at `/api-docs` when running the application.
 
