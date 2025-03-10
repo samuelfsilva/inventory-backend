@@ -6,8 +6,8 @@
 A modern full-stack inventory management system built with TypeScript, Express, SQL Server, and Next.js.
 
 <p align="center">
-  <img src="https://cdn-icons-png.flaticon.com/512/7656/7656399.png" alt="Inventory Management System" />
-</p>
+  <img src="https://cdn-icons-png.flaticon.com/512/7656/7656399.png" alt="Inventory Management System" width="300" height="300" />
+  </p>
 
 ## 🚀 Features
 
