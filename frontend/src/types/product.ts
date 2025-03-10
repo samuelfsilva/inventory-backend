@@ -2,7 +2,7 @@ export interface Product {
   id: string
   name: string
   description: string
-  isActive: boolean
+  status: boolean
   category: {
     id: string
     description: string
@@ -25,13 +25,13 @@ export interface PutProduct {
   description: string
   categoryId: string
   groupId: string
-  isActive: boolean
+  status: boolean
 }
 
 export interface ProductReview {
   name?: string
   description?: string
-  isActive?: string
+  status?: string
   categoryId?: string
   groupId?: string
 }

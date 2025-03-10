@@ -25,3 +25,4 @@ app/src/swagger.json
 *.sw?
 
 *.env
+!/.env.example

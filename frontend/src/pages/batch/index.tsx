@@ -205,11 +205,11 @@ const BatchList: React.FC = () => {
           <FormLabel>
             Expiration Date:
             {/* <Checkbox
-              checked={putBatch.isActive}
+              checked={putBatch.status}
               onChange={(e) =>
                 setPutBatch({
                   ...putBatch,
-                  isActive: e.target.checked,
+                  status: e.target.checked,
                 })
               }
             /> */}

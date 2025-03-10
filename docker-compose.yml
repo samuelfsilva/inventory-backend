@@ -3,23 +3,23 @@ networks:
     driver: bridge
 
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: dockerfile-frontend
-    container_name: inventory-frontend
-    environment:
-      DOCKER_NODE_VERSION: ${DOCKER_NODE_VERSION}
-      DOCKER_FRONTEND_PORT: ${DOCKER_FRONTEND_PORT}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-    ports:
-      - ${DOCKER_FRONTEND_PORT}:${DOCKER_FRONTEND_PORT}
-    networks:
-      - app_network
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - ./.env:/app/.env
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: dockerfile-frontend
+  #   container_name: inventory-frontend
+  #   environment:
+  #     DOCKER_NODE_VERSION: ${DOCKER_NODE_VERSION}
+  #     DOCKER_FRONTEND_PORT: ${DOCKER_FRONTEND_PORT}
+  #     NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+  #   ports:
+  #     - ${DOCKER_FRONTEND_PORT}:${DOCKER_FRONTEND_PORT}
+  #   networks:
+  #     - app_network
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #     - ./.env:/app/.env
 
   backend:
     build:

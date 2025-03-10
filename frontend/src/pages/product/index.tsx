@@ -110,7 +110,7 @@ const ProductList: React.FC = () => {
       description: data.description,
       categoryId: data.category.id,
       groupId: data.group.id,
-      isActive: data.isActive,
+      status: data.status,
     })
 
     setPutProductCategory(
@@ -210,7 +210,7 @@ const ProductList: React.FC = () => {
         id: product.group.id,
         description: product.group.description,
       },
-      isActive: product.isActive,
+      status: product.status,
     })),
     handleDelete,
     handleUpdate,
@@ -354,13 +354,13 @@ const ProductList: React.FC = () => {
               <div className={styles.statusContiner}>
                 <Checkbox
                   className={styles.formLabelTextField}
-                  checked={putProduct ? putProduct.isActive : false}
+                  checked={putProduct ? putProduct.status : false}
                   onChange={(e) =>
                     setPutProduct((putProduct) =>
                       putProduct
                         ? {
                             ...putProduct,
-                            isActive: e.target.checked,
+                            status: e.target.checked,
                           }
                         : null,
                     )

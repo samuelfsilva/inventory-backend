@@ -66,7 +66,7 @@ const DepositList: React.FC = () => {
     setPutDeposit({
       name: data.name,
       description: data.description,
-      isActive: data.isActive,
+      status: data.status,
     })
 
     setEditOpenDialog(true)
@@ -152,7 +152,7 @@ const DepositList: React.FC = () => {
       id: deposit.id,
       name: deposit.name,
       description: deposit.description,
-      isActive: deposit.isActive,
+      status: deposit.status,
     })),
     handleDelete,
     handleUpdate,
@@ -239,12 +239,12 @@ const DepositList: React.FC = () => {
             <FormLabel className={styles.formLabel}>
               <InputLabel>Status:</InputLabel>
               <Checkbox
-                checked={putDeposit?.isActive || false}
+                checked={putDeposit?.status || false}
                 onChange={(e) => {
                   if (putDeposit)
                     setPutDeposit({
                       ...putDeposit,
-                      isActive: e.target.checked,
+                      status: e.target.checked,
                     })
                 }}
               />

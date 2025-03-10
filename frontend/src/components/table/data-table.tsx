@@ -63,7 +63,7 @@ const DataTable: React.FC<DataTableProps> = ({ content }) => {
       .map((item) => (
         <TableRow key={item.id} className={styles.tableRow}>
           <TableCell>{item.name}</TableCell>
-          <TableCell>{item.isActive ? 'Active' : 'Inactive'}</TableCell>
+          <TableCell>{item.status ? 'Active' : 'Inactive'}</TableCell>
           {actionButtons(item.id)}
         </TableRow>
       ))
@@ -81,7 +81,7 @@ const DataTable: React.FC<DataTableProps> = ({ content }) => {
           <TableCell>{item.name}</TableCell>
           <TableCell>{item.category.description}</TableCell>
           <TableCell>{item.group.description}</TableCell>
-          <TableCell>{item.isActive ? 'Active' : 'Inactive'}</TableCell>
+          <TableCell>{item.status ? 'Active' : 'Inactive'}</TableCell>
           {actionButtons(item.id)}
         </TableRow>
       ))
@@ -97,7 +97,7 @@ const DataTable: React.FC<DataTableProps> = ({ content }) => {
       .map((item) => (
         <TableRow key={item.id} className={styles.tableRow}>
           <TableCell>{item.description}</TableCell>
-          <TableCell>{item.isActive ? 'Active' : 'Inactive'}</TableCell>
+          <TableCell>{item.status ? 'Active' : 'Inactive'}</TableCell>
           {actionButtons(item.id)}
         </TableRow>
       ))

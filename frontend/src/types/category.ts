@@ -1,7 +1,7 @@
 export interface Category {
   id: string
   description: string
-  isActive: boolean
+  status: boolean
 }
 
 export interface NewCategory {
@@ -10,12 +10,12 @@ export interface NewCategory {
 
 export interface PutCategory {
   description: string
-  isActive: boolean
+  status: boolean
 }
 
 export interface CategoryReview {
   description?: string
-  isActive?: string
+  status?: string
 }
 
 export interface CategoryResponse {

@@ -35,7 +35,7 @@ const CategoryList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([])
   const [putCategory, setPutCategory] = useState<PutCategory>({
     description: '',
-    isActive: true,
+    status: true,
   })
   const [searchTerm, setSearchTerm] = useState('')
   const [editErrors, setEditErrors] = useState<CategoryReview>({})
@@ -70,7 +70,7 @@ const CategoryList: React.FC = () => {
     const data = await getCategory(id as string)
     setPutCategory({
       description: data.description,
-      isActive: data.isActive,
+      status: data.status,
     })
   }
 
@@ -160,7 +160,7 @@ const CategoryList: React.FC = () => {
     data: filteredCategories.map((category) => ({
       id: category.id,
       description: category.description,
-      isActive: category.isActive,
+      status: category.status,
     })),
     handleDelete,
     handleUpdate,
@@ -228,11 +228,11 @@ const CategoryList: React.FC = () => {
           <FormLabel>
             Active:
             <Checkbox
-              checked={putCategory.isActive}
+              checked={putCategory.status}
               onChange={(e) =>
                 setPutCategory({
                   ...putCategory,
-                  isActive: e.target.checked,
+                  status: e.target.checked,
                 })
               }
             />

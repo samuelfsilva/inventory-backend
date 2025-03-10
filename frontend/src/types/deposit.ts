@@ -2,7 +2,7 @@ export interface Deposit {
   id: string
   name: string
   description: string
-  isActive: boolean
+  status: boolean
 }
 
 export interface NewDeposit {
@@ -13,13 +13,13 @@ export interface NewDeposit {
 export interface PutDeposit {
   name: string
   description: string
-  isActive: boolean
+  status: boolean
 }
 
 export interface DepositReview {
   name?: string
   description?: string
-  isActive?: string
+  status?: string
 }
 
 export interface DepositResponse {
