@@ -165,67 +165,27 @@ DOCKER_FRONTEND_PORT=3000
 
 ## 📌 API Endpoints
 
-| Method | Endpoint                                     | Description                         |
-| ------ | -------------------------------------------- | ----------------------------------- |
-| GET    | /batch                                       | Get all batchs                      |
-| GET    | /batch/:id                                   | Get batch by ID                     |
-| POST   | /batch                                       | Create a batch                      |
-| PUT    | /batch/:id                                   | Update a batch                      |
-| DELETE | /batch/:id                                   | Delete a batch                      |
-| GET    | /category                                    | Get all categories                  |
-| GET    | /category/:id                                | Get category by ID                  |
-| POST   | /category                                    | Create a category                   |
-| PUT    | /category/:id                                | Update a category                   |
-| DELETE | /category/:id                                | Delete a category                   |
-| GET    | /deposit                                     | Get all deposits                    |
-| GET    | /deposit/:id                                 | Get deposit by ID                   |
-| POST   | /deposit                                     | Create a deposit                    |
-| PUT    | /deposit/:id                                 | Update a deposit                    |
-| DELETE | /deposit/:id                                 | Delete a deposit                    |
-| GET    | /group                                       | Get all groups                      |
-| GET    | /group/:id                                   | Get group by ID                     |
-| GET    | /group/:id/products                          | Get products of the group by ID     |
-| GET    | /group/description/:description              | Get group by description            |
-| GET    | /group/description-like/:description         | Get groups with similar description |
-| POST   | /group                                       | Create a group                      |
-| PUT    | /group/:id                                   | Update a group                      |
-| DELETE | /group/:id                                   | Delete a group                      |
-| GET    | /moment_item                                 | Get all moment items                |
-| GET    | /moment_item/:id                             | Get moment item by ID               |
-| POST   | /moment_item                                 | Create a moment item                |
-| PUT    | /moment_item/:id                             | Update a moment item                |
-| DELETE | /moment_item/:id                             | Delete a moment item                |
-| GET    | /movement                                    | Get all movements                   |
-| GET    | /movement/active                             | Get all active movements            |
-| GET    | /movement/:id                                | Get movement by ID                  |
-| GET    | /movement/:id/items                          | Get items of the movement by ID     |
-| GET    | /movement/movementDate/:movementDate         | Get movements by date               |
-| GET    | /movement/movementPeriod/:startDate/:endDate | Get movements within a period       |
-| POST   | /movement                                    | Create a movement                   |
-| PUT    | /movement/:id                                | Update a movement                   |
-| DELETE | /movement/:id                                | Delete a movement                   |
-| GET    | /product                                     | Get all products                    |
-| GET    | /product/:id                                 | Get product by ID                   |
-| GET    | /product/active                              | Get all active products             |
-| POST   | /product                                     | Create a product                    |
-| PUT    | /product/:id                                 | Update a product                    |
-| DELETE | /product/:id                                 | Delete a product                    |
-| GET    | /stock                                       | Get all stock                       |
-| GET    | /stock/active                                | Get all active stock                |
-| GET    | /stock/:id                                   | Get stock by ID                     |
-| GET    | /stock/batch/:id                             | Get stock by batch ID               |
-| GET    | /stock/deposit/:id                           | Get stock by deposit ID             |
-| GET    | /stock/product/:id                           | Get stock by product ID             |
-| POST   | /stock                                       | Create a stock                      |
-| PUT    | /stock/:id                                   | Update a stock                      |
-| DELETE | /stock/:id                                   | Delete a stock                      |
-| GET    | /user                                        | Get all users                       |
-| GET    | /user/:id                                    | Get user by ID                      |
-| GET    | /user/firstName/:firstName                   | Get user by first name              |
-| GET    | /user/active                                 | Get all active users                |
-| POST   | /user                                        | Create a user                       |
-| PUT    | /user/:id                                    | Update a user                       |
-| DELETE | /user/:id                                    | Delete a user                       |
+| Method | Endpoint                   | Description             |
+| ------ | -------------------------- | ----------------------- |
+| GET    | /category                  | Get all categories      |
+| GET    | /category/:id              | Get category by ID      |
+| POST   | /category                  | Create a category       |
+| PUT    | /category/:id              | Update a category       |
+| DELETE | /category/:id              | Delete a category       |
+| GET    | /product                   | Get all products        |
+| GET    | /product/:id               | Get product by ID       |
+| GET    | /product/active            | Get all active products |
+| POST   | /product                   | Create a product        |
+| PUT    | /product/:id               | Update a product        |
+| DELETE | /product/:id               | Delete a product        |
+| GET    | /user                      | Get all users           |
+| GET    | /user/:id                  | Get user by ID          |
+| GET    | /user/firstName/:firstName | Get user by first name  |
+| GET    | /user/active               | Get all active users    |
+| POST   | /user                      | Create a user           |
+| PUT    | /user/:id                  | Update a user           |
+| DELETE | /user/:id                  | Delete a user           |
+| ...    | ...                        | ...                     |
 
 Full API documentation is available at `/doc` when running the application.
 
